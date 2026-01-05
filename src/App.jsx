@@ -1,62 +1,96 @@
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { Box } from '@mui/material';
-import Navbar from './components/common/Navbar';
-import Toast from './components/common/Toast';
-import ProtectedRoute from './components/common/ProtectedRoute';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import LandingPage from './pages/LandingPage';
+import LoginPage from './pages/LoginPage';
+import DoctorRegistrationPage from './pages/DoctorRegistrationPage';
+import PatientRegistrationPage from './pages/PatientRegistrationPage';
+import DoctorDashboard from './pages/DoctorDashboard';
+import PatientDashboard from './pages/PatientDashboard';
+import './index.css';
 
-// Auth Pages
-import Login from './pages/auth/Login';
-import DoctorRegister from './pages/auth/DoctorRegister';
+// Protected Route Component
+const ProtectedRoute = ({ children, requiredRole }) => {
+  const { isAuthenticated, user, loading } = useAuth();
 
-// Doctor Pages
-import DoctorDashboard from './pages/doctor/DoctorDashboard';
-import PatientManagement from './pages/doctor/PatientManagement';
-import CreateVisit from './pages/doctor/CreateVisit';
-import VisitDetails from './pages/doctor/VisitDetails';
-import DoctorProfile from './pages/doctor/DoctorProfile';
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="spinner"></div>
+      </div>
+    );
+  }
 
-// Patient Pages
-import PatientDashboard from './pages/patient/PatientDashboard';
-import MyVisits from './pages/patient/MyVisits';
-import MyPrescriptions from './pages/patient/MyPrescriptions';
-import PatientProfile from './pages/patient/PatientProfile';
+  if (!isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
 
-// Admin Pages
-import AdminDashboard from './pages/admin/AdminDashboard';
-import ManageDoctors from './pages/admin/ManageDoctors';
-import ManagePatients from './pages/admin/ManagePatients';
+  if (requiredRole && user?.userType !== requiredRole) {
+    return <Navigate to="/" replace />;
+  }
 
-import { useAuthStore } from './store/authStore';
+  return children;
+};
 
-function App() {
-  const { user } = useAuthStore();
+// Main App Routes
+const AppRoutes = () => {
+  const { isAuthenticated, user } = useAuth();
 
   return (
-    <Box className="app-container">
-      <Toast />
-      {user && <Navbar />}
-      <Box className="main-content">
-        <Routes>
-          <Route path="/login" element={user ? <Navigate to={`/${user.role.toLowerCase()}/dashboard`} /> : <Login />} />
-          <Route path="/register" element={user ? <Navigate to={`/${user.role.toLowerCase()}/dashboard`} /> : <DoctorRegister />} />
-          <Route path="/doctor/dashboard" element={<ProtectedRoute role="DOCTOR"><DoctorDashboard /></ProtectedRoute>} />
-          <Route path="/doctor/patients" element={<ProtectedRoute role="DOCTOR"><PatientManagement /></ProtectedRoute>} />
-          <Route path="/doctor/visit/create" element={<ProtectedRoute role="DOCTOR"><CreateVisit /></ProtectedRoute>} />
-          <Route path="/doctor/visit/:visitId" element={<ProtectedRoute role="DOCTOR"><VisitDetails /></ProtectedRoute>} />
-          <Route path="/doctor/profile" element={<ProtectedRoute role="DOCTOR"><DoctorProfile /></ProtectedRoute>} />
-          <Route path="/patient/dashboard" element={<ProtectedRoute role="PATIENT"><PatientDashboard /></ProtectedRoute>} />
-          <Route path="/patient/visits" element={<ProtectedRoute role="PATIENT"><MyVisits /></ProtectedRoute>} />
-          <Route path="/patient/prescriptions" element={<ProtectedRoute role="PATIENT"><MyPrescriptions /></ProtectedRoute>} />
-          <Route path="/patient/profile" element={<ProtectedRoute role="PATIENT"><PatientProfile /></ProtectedRoute>} />
-          <Route path="/admin/dashboard" element={<ProtectedRoute role="ADMIN"><AdminDashboard /></ProtectedRoute>} />
-          <Route path="/admin/doctors" element={<ProtectedRoute role="ADMIN"><ManageDoctors /></ProtectedRoute>} />
-          <Route path="/admin/patients" element={<ProtectedRoute role="ADMIN"><ManagePatients /></ProtectedRoute>} />
-          <Route path="/" element={<Navigate to={user ? `/${user.role.toLowerCase()}/dashboard` : "/login"} />} />
-          <Route path="*" element={<Navigate to="/" />} />
-        </Routes>
-      </Box>
-    </Box>
+    <Routes>
+      {/* Public Routes */}
+      <Route
+        path="/"
+        element={
+          isAuthenticated ? (
+            user?.userType === 'DOCTOR' ? (
+              <Navigate to="/doctor/dashboard" replace />
+            ) : (
+              <Navigate to="/patient/dashboard" replace />
+            )
+          ) : (
+            <LandingPage />
+          )
+        }
+      />
+      <Route path="/login/:userType" element={<LoginPage />} />
+      <Route path="/register/doctor" element={<DoctorRegistrationPage />} />
+      <Route path="/register/patient" element={<PatientRegistrationPage />} />
+
+      {/* Doctor Routes */}
+      <Route
+        path="/doctor/dashboard"
+        element={
+          <ProtectedRoute requiredRole="DOCTOR">
+            <DoctorDashboard />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Patient Routes */}
+      <Route
+        path="/patient/dashboard"
+        element={
+          <ProtectedRoute requiredRole="PATIENT">
+            <PatientDashboard />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Fallback */}
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+};
+
+// Main App Component
+function App() {
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
 
