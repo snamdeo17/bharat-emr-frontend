@@ -91,14 +91,15 @@ const DoctorDashboard = () => {
                 <div className="flex-1 px-4 mt-6">
                     <div className="flex flex-col gap-1">
                         {[
-                            { icon: <Activity />, label: 'Dashboard', active: true },
-                            { icon: <Users />, label: 'Patient Registry' },
-                            { icon: <Calendar />, label: 'Schedule' },
-                            { icon: <History />, label: 'Medical History' },
-                            { icon: <Settings />, label: 'Settings' },
+                            { icon: <Activity />, label: 'Dashboard', path: '/doctor/dashboard', active: true },
+                            { icon: <Users />, label: 'Patient Registry', path: '/doctor/patients' },
+                            { icon: <Calendar />, label: 'Schedule', path: '#' },
+                            { icon: <History />, label: 'Medical History', path: '#' },
+                            { icon: <Settings />, label: 'Settings', path: '#' },
                         ].map((item, idx) => (
                             <button
                                 key={idx}
+                                onClick={() => item.path !== '#' && navigate(item.path)}
                                 className={`w-full flex items-center gap-4 px-4 py-3-5 rounded-xl font-bold transition-all ${item.active
                                     ? 'bg-primary text-white shadow-lg'
                                     : 'text-gray-400 hover:bg-gray-50 hover:text-gray-600'
@@ -197,7 +198,12 @@ const DoctorDashboard = () => {
                             <div className="card p-0 overflow-hidden border-none shadow-sm">
                                 <div className="p-6 border-b border-gray-50 flex items-center justify-between">
                                     <h2 className="text-xl font-black text-gray-900">Recent Registrations</h2>
-                                    <button className="text-sm font-bold text-primary hover:underline">View All</button>
+                                    <button
+                                        onClick={() => navigate('/doctor/patients')}
+                                        className="text-sm font-bold text-primary hover:underline"
+                                    >
+                                        View All
+                                    </button>
                                 </div>
                                 <div className="overflow-x-auto">
                                     <table className="w-full text-left border-collapse">
@@ -233,9 +239,17 @@ const DoctorDashboard = () => {
                                                         <td className="px-6 py-4 font-medium text-gray-400">{p.registeredAt || 'Today'}</td>
                                                         <td className="px-6 py-4"><span className="badge badge-success">Onboarded</span></td>
                                                         <td className="px-6 py-4 text-right">
-                                                            <button className="p-2 hover:bg-white rounded-lg text-gray-300 group-hover:text-primary">
-                                                                <ChevronRight className="w-5 h-5" />
-                                                            </button>
+                                                            <div className="flex items-center justify-end gap-2">
+                                                                <button
+                                                                    onClick={() => navigate(`/doctor/consultation/${p.id}`)}
+                                                                    className="btn btn-primary py-1.5 px-4 text-xs shadow-md"
+                                                                >
+                                                                    Consult
+                                                                </button>
+                                                                <button className="p-2 hover:bg-white rounded-lg text-gray-300 group-hover:text-primary">
+                                                                    <ChevronRight className="w-5 h-5" />
+                                                                </button>
+                                                            </div>
                                                         </td>
                                                     </tr>
                                                 ))
@@ -250,7 +264,10 @@ const DoctorDashboard = () => {
                             <div className="card medical-grad text-white border-none p-8">
                                 <h3 className="text-xl font-black mb-2">Digital Prescription</h3>
                                 <p className="text-blue-100 text-sm mb-6 leading-relaxed">Quickly generate AI-powered E-Prescriptions for your patients.</p>
-                                <button className="btn bg-white text-primary w-full py-3-5 font-bold shadow-xl">
+                                <button
+                                    onClick={() => navigate('/doctor/patients')}
+                                    className="btn bg-white text-primary w-full py-3.5 font-bold shadow-xl"
+                                >
                                     Start Session
                                 </button>
                             </div>

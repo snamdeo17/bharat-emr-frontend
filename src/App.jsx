@@ -8,6 +8,9 @@ import PatientRegistrationPage from './pages/PatientRegistrationPage';
 import DoctorDashboard from './pages/DoctorDashboard';
 import PatientDashboard from './pages/PatientDashboard';
 import AddPatient from './pages/doctor/AddPatient';
+import Consultation from './pages/doctor/Consultation';
+import PatientRegistry from './pages/doctor/PatientRegistry';
+import PatientDetails from './pages/doctor/PatientDetails';
 import './index.css';
 
 // Protected Route Component
@@ -72,6 +75,30 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute requiredRole="DOCTOR">
             <AddPatient />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/doctor/patients"
+        element={
+          <ProtectedRoute requiredRole="DOCTOR">
+            <PatientRegistry />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/doctor/patients/:patientId"
+        element={
+          <ProtectedRoute requiredRole="DOCTOR">
+            <PatientDetails />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/doctor/consultation/:patientId"
+        element={
+          <ProtectedRoute requiredRole="DOCTOR">
+            <Consultation />
           </ProtectedRoute>
         }
       />
