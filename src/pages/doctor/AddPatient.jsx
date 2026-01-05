@@ -113,7 +113,7 @@ const AddPatient = () => {
                             emergencyContactNumber: '',
                         }}
                         validationSchema={validationSchema}
-                        onSubmit={handleOnboard}
+                        onSubmit={handleSubmit}
                     >
                         {({ isSubmitting, values, touched, errors }) => (
                             <Form className="space-y-10">

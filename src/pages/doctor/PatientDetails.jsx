@@ -26,7 +26,7 @@ const PatientDetails = () => {
                 if (found) {
                     setPatient(found);
                     // Fetch visits for this patient
-                    const visitsData = await api.get(`/api/visits/patient/${found.patientId}`);
+                    const visitsData = await api.get(`/visits/patient/${found.patientId}`);
                     setVisits(visitsData);
                 }
             } catch (error) {

@@ -81,7 +81,7 @@ const Consultation = () => {
                 tests: tests.filter(t => t.testName),
                 followUp: followUp.scheduledDate ? followUp : null
             };
-            await api.post('/api/visits', visitData);
+            await api.post('/visits', visitData);
             navigate('/doctor/dashboard');
         } catch (error) {
             console.error('Failed to submit visit:', error);
