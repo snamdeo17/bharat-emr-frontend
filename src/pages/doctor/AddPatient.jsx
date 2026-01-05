@@ -76,6 +76,19 @@ const AddPatient = () => {
 
             <main className="flex-1 p-8 overflow-y-auto h-screen">
                 <div className="max-w-4xl mx-auto">
+                    {/* Header with Back Button */}
+                    <div className="flex items-center gap-4 mb-8">
+                        <button
+                            onClick={() => navigate(-1)}
+                            className="w-10 h-10 bg-white rounded-xl shadow-sm flex items-center justify-center text-gray-400 hover:text-primary transition-all"
+                        >
+                            <ArrowLeft className="w-5 h-5" />
+                        </button>
+                        <div>
+                            <span className="text-xs font-black text-gray-400 uppercase tracking-widest">Onboarding Workflow</span>
+                        </div>
+                    </div>
+
                     {/* Intro Section */}
                     <div className="mb-12">
                         <div className="inline-flex items-center justify-center w-14 h-14 bg-primary rounded-2xl mb-6 shadow-lg">
