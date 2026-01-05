@@ -221,10 +221,10 @@ const DoctorDashboard = () => {
                                                         <td className="px-6 py-4">
                                                             <div className="flex items-center gap-3">
                                                                 <div className="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center font-bold text-gray-400 group-hover:bg-primary-subtle group-hover:text-primary transition-colors">
-                                                                    {p.name?.charAt(0)}
+                                                                    {p.fullName?.charAt(0)}
                                                                 </div>
                                                                 <div>
-                                                                    <p className="font-bold text-gray-900">{p.name}</p>
+                                                                    <p className="font-bold text-gray-900">{p.fullName}</p>
                                                                     <p className="text-xs text-gray-400">{p.mobile}</p>
                                                                 </div>
                                                             </div>

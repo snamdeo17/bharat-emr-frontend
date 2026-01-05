@@ -7,6 +7,7 @@ import DoctorRegistrationPage from './pages/DoctorRegistrationPage';
 import PatientRegistrationPage from './pages/PatientRegistrationPage';
 import DoctorDashboard from './pages/DoctorDashboard';
 import PatientDashboard from './pages/PatientDashboard';
+import AddPatient from './pages/doctor/AddPatient';
 import './index.css';
 
 // Protected Route Component
@@ -63,6 +64,14 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute requiredRole="DOCTOR">
             <DoctorDashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/doctor/patients/add"
+        element={
+          <ProtectedRoute requiredRole="DOCTOR">
+            <AddPatient />
           </ProtectedRoute>
         }
       />

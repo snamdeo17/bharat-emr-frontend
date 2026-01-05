@@ -94,7 +94,7 @@ const DoctorRegistrationPage = () => {
         setError('');
 
         try {
-            const data = await api.post('/api/doctor/register', {
+            const data = await api.post('/doctor/register', {
                 ...values,
                 mobileNumber: `+91${mobileNumber}`,
             });

@@ -14,9 +14,9 @@ const PatientRegistrationPage = () => {
     const [error, setError] = useState('');
 
     const validationSchema = Yup.object({
-        name: Yup.string()
-            .min(3, 'Name must be at least 3 characters')
-            .required('Name is required'),
+        fullName: Yup.string()
+            .min(3, 'Full name must be at least 3 characters')
+            .required('Full name is required'),
         email: Yup.string()
             .email('Invalid email address'),
         dateOfBirth: Yup.date()
@@ -256,7 +256,7 @@ const PatientRegistrationPage = () => {
                     {step === 'details' && (
                         <Formik
                             initialValues={{
-                                name: '',
+                                fullName: '',
                                 email: '',
                                 dateOfBirth: '',
                                 gender: '',
@@ -284,8 +284,8 @@ const PatientRegistrationPage = () => {
                                                 <label className="block text-sm font-medium text-gray-700 mb-1">
                                                     Full Name *
                                                 </label>
-                                                <Field name="name" type="text" className="input" placeholder="John Doe" />
-                                                <ErrorMessage name="name" component="div" className="text-red-600 text-sm mt-1" />
+                                                <Field name="fullName" type="text" className="input" placeholder="John Doe" />
+                                                <ErrorMessage name="fullName" component="div" className="text-red-600 text-sm mt-1" />
                                             </div>
 
                                             <div>
