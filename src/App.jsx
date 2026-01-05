@@ -11,6 +11,9 @@ import AddPatient from './pages/doctor/AddPatient';
 import Consultation from './pages/doctor/Consultation';
 import PatientRegistry from './pages/doctor/PatientRegistry';
 import PatientDetails from './pages/doctor/PatientDetails';
+import Schedule from './pages/doctor/Schedule';
+import MedicalHistory from './pages/doctor/MedicalHistory';
+import Settings from './pages/doctor/Settings';
 import './index.css';
 
 // Protected Route Component
@@ -99,6 +102,30 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute requiredRole="DOCTOR">
             <Consultation />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/doctor/schedule"
+        element={
+          <ProtectedRoute requiredRole="DOCTOR">
+            <Schedule />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/doctor/history"
+        element={
+          <ProtectedRoute requiredRole="DOCTOR">
+            <MedicalHistory />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/doctor/settings"
+        element={
+          <ProtectedRoute requiredRole="DOCTOR">
+            <Settings />
           </ProtectedRoute>
         }
       />

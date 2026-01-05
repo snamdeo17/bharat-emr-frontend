@@ -6,41 +6,38 @@ import {
 } from 'lucide-react';
 import api from '../../config/api';
 
+import DoctorSidebar from '../../components/DoctorSidebar';
+
 const PatientRegistry = () => {
     const navigate = useNavigate();
     const [patients, setPatients] = useState([]);
-    const [searchTerm, setSearchTerm] = useState('');
     const [loading, setLoading] = useState(true);
+    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
+        const fetchPatients = async () => {
+            try {
+                const data = await api.get('/doctor/patients');
+                setPatients(data);
+            } catch (error) {
+                console.error('Failed to fetch patients:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
         fetchPatients();
     }, []);
 
-    const fetchPatients = async () => {
-        try {
-            const data = await api.get('/doctor/patients');
-            setPatients(data);
-        } catch (error) {
-            console.error('Failed to fetch patients:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
     const filteredPatients = patients.filter(p =>
         p.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        p.mobile?.includes(searchTerm) ||
-        p.patientId?.toLowerCase().includes(searchTerm.toLowerCase())
+        p.patientId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        p.mobileNumber?.includes(searchTerm)
     );
 
     return (
         <div className="min-h-screen bg-gray-50 flex">
-            {/* Sidebar Mockup (Shortened for brevity) */}
-            <div className="w-20 bg-white border-r border-gray-100 flex flex-col items-center py-6 gap-8 h-screen sticky top-0">
-                <div className="w-10 h-10 bg-primary flex items-center justify-center rounded-xl" onClick={() => navigate('/doctor/dashboard')}>
-                    <Activity className="text-white w-6 h-6 cursor-pointer" />
-                </div>
-            </div>
+            <DoctorSidebar />
 
             <main className="flex-1 p-8">
                 <div className="max-w-6xl mx-auto">
@@ -109,7 +106,7 @@ const PatientRegistry = () => {
                                                         <div>
                                                             <p className="font-bold text-gray-900 text-base">{p.fullName}</p>
                                                             <div className="flex items-center gap-1 text-gray-400 font-medium">
-                                                                <Phone className="w-3 h-3" /> {p.mobile}
+                                                                <Phone className="w-3 h-3" /> {p.mobileNumber}
                                                             </div>
                                                         </div>
                                                     </div>
@@ -120,13 +117,13 @@ const PatientRegistry = () => {
                                                 <td className="px-6 py-5 text-right">
                                                     <div className="flex items-center justify-end gap-3">
                                                         <button
-                                                            onClick={() => navigate(`/doctor/consultation/${p.id}`)}
+                                                            onClick={() => navigate(`/doctor/consultation/${p.patientId}`)}
                                                             className="btn btn-primary py-2 px-5 text-sm"
                                                         >
                                                             Start Visit
                                                         </button>
                                                         <button
-                                                            onClick={() => navigate(`/doctor/patients/${p.id}`)}
+                                                            onClick={() => navigate(`/doctor/patients/${p.patientId}`)}
                                                             className="p-2 text-gray-300 hover:text-primary transition-colors hover:bg-white rounded-lg shadow-sm border border-transparent hover:border-gray-100"
                                                         >
                                                             <ChevronRight className="w-5 h-5" />

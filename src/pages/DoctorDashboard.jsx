@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import api from '../config/api';
+import DoctorSidebar from '../components/DoctorSidebar';
 
 const DoctorDashboard = () => {
     const navigate = useNavigate();
@@ -79,57 +80,12 @@ const DoctorDashboard = () => {
 
     return (
         <div className="flex min-h-screen bg-gray-50">
-            {/* Professional Sticky Sidebar */}
-            <aside className={`${sidebarOpen ? 'w-72' : 'w-20'} bg-white border-r border-gray-100 flex flex-col transition-all h-screen sticky top-0 z-50 flex-shrink-0`}>
-                <div className="p-6 flex items-center gap-3">
-                    <div className="w-10 h-10 bg-primary flex items-center justify-center rounded-xl flex-shrink-0">
-                        <Activity className="text-white w-6 h-6" />
-                    </div>
-                    {sidebarOpen && <span className="font-extrabold text-xl tracking-tight text-gray-900 whitespace-nowrap">Bharat EMR</span>}
-                </div>
-
-                <div className="flex-1 px-4 mt-6">
-                    <div className="flex flex-col gap-1">
-                        {[
-                            { icon: <Activity />, label: 'Dashboard', path: '/doctor/dashboard', active: true },
-                            { icon: <Users />, label: 'Patient Registry', path: '/doctor/patients' },
-                            { icon: <Calendar />, label: 'Schedule', path: '#' },
-                            { icon: <History />, label: 'Medical History', path: '#' },
-                            { icon: <Settings />, label: 'Settings', path: '#' },
-                        ].map((item, idx) => (
-                            <button
-                                key={idx}
-                                onClick={() => item.path !== '#' && navigate(item.path)}
-                                className={`w-full flex items-center gap-4 px-4 py-3-5 rounded-xl font-bold transition-all ${item.active
-                                    ? 'bg-primary text-white shadow-lg'
-                                    : 'text-gray-400 hover:bg-gray-50 hover:text-gray-600'
-                                    }`}
-                            >
-                                <div className="flex-shrink-0">{React.cloneElement(item.icon, { className: 'w-5 h-5' })}</div>
-                                {sidebarOpen && <span className="whitespace-nowrap">{item.label}</span>}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-
-                <div className="p-4 mt-auto">
-                    <button
-                        onClick={logout}
-                        className="w-full flex items-center gap-4 px-4 py-3-5 rounded-xl font-bold text-red-500 hover:bg-red-50 transition-all"
-                    >
-                        <div className="flex-shrink-0"><LogOut className="w-5 h-5" /></div>
-                        {sidebarOpen && <span className="whitespace-nowrap">Sign Out</span>}
-                    </button>
-                </div>
-            </aside>
+            <DoctorSidebar />
 
             {/* Main Content Area */}
             <main className="flex-1 min-w-0 overflow-y-auto">
                 <header className="h-20 bg-white-80 backdrop-blur-md border-b border-gray-100 sticky top-0 z-40 px-8 flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                        <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 hover:bg-gray-50 rounded-lg">
-                            {sidebarOpen ? <X className="w-5 h-5 text-gray-400" /> : <Menu className="w-5 h-5 text-gray-400" />}
-                        </button>
                         <div className="hidden md-flex relative">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                             <input
@@ -241,12 +197,15 @@ const DoctorDashboard = () => {
                                                         <td className="px-6 py-4 text-right">
                                                             <div className="flex items-center justify-end gap-2">
                                                                 <button
-                                                                    onClick={() => navigate(`/doctor/consultation/${p.id}`)}
+                                                                    onClick={() => navigate(`/doctor/consultation/${p.patientId}`)}
                                                                     className="btn btn-primary py-1.5 px-4 text-xs shadow-md"
                                                                 >
                                                                     Consult
                                                                 </button>
-                                                                <button className="p-2 hover:bg-white rounded-lg text-gray-300 group-hover:text-primary">
+                                                                <button
+                                                                    onClick={() => navigate(`/doctor/patients/${p.patientId}`)}
+                                                                    className="p-2 hover:bg-white rounded-lg text-gray-300 group-hover:text-primary transition-all"
+                                                                >
                                                                     <ChevronRight className="w-5 h-5" />
                                                                 </button>
                                                             </div>
@@ -293,7 +252,7 @@ const DoctorDashboard = () => {
                     </div>
                 </div>
             </main>
-        </div>
+        </div >
     );
 };
 
