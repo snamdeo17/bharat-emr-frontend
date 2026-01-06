@@ -3,9 +3,10 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {
     ArrowLeft, History, Pill, Calendar,
     ClipboardCheck, Plus, Trash2, CheckCircle2,
-    Activity, User, ChevronRight, Save
+    Activity, User, ChevronRight, Save, Shield
 } from 'lucide-react';
 import api from '../../config/api';
+import { format } from 'date-fns';
 import DoctorSidebar from '../../components/DoctorSidebar';
 
 const Consultation = () => {
@@ -225,6 +226,48 @@ const Consultation = () => {
                                         </div>
                                     ))}
                                 </div>
+
+                                {/* Diagnostic Tests Section */}
+                                <div className="mt-12 pt-12 border-t border-gray-100">
+                                    <div className="flex justify-between items-center mb-6">
+                                        <h3 className="text-xl font-black text-gray-900 flex items-center gap-2">
+                                            <Shield className="w-6 h-6 text-primary" /> Diagnostic Tests
+                                        </h3>
+                                        <button onClick={addTest} className="btn btn-primary py-2 text-xs">
+                                            <Plus className="w-4 h-4" /> Add Test
+                                        </button>
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        {tests.map((t, i) => (
+                                            <div key={i} className="p-6 bg-gray-50 rounded-2xl relative group border border-transparent hover:border-primary-20 transition-all">
+                                                <button onClick={() => removeTest(i)} className="absolute -top-2 -right-2 w-8 h-8 bg-white text-red-500 rounded-lg shadow-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                                <div className="grid md-grid-cols-2 gap-4">
+                                                    <div>
+                                                        <label className="text-[10px] font-black text-gray-400 uppercase mb-1 block">Test Name</label>
+                                                        <input
+                                                            className="input h-10 text-sm"
+                                                            value={t.testName}
+                                                            placeholder="e.g. Blood Count"
+                                                            onChange={(e) => updateTest(i, 'testName', e.target.value)}
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label className="text-[10px] font-black text-gray-400 uppercase mb-1 block">Special Instructions</label>
+                                                        <input
+                                                            className="input h-10 text-sm"
+                                                            value={t.instructions}
+                                                            placeholder="e.g. Fasting required"
+                                                            onChange={(e) => updateTest(i, 'instructions', e.target.value)}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
                             </div>
                         )}
 
@@ -257,24 +300,103 @@ const Consultation = () => {
                         )}
 
                         {step === 4 && (
-                            <div className="space-y-8 animate-fade-in text-center py-10">
-                                <div className="w-24 h-24 bg-green-50 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
-                                    <ClipboardCheck className="w-12 h-12" />
-                                </div>
-                                <h3 className="text-2xl font-black text-gray-900">Review & Submit</h3>
-                                <p className="text-gray-500 font-medium max-w-md mx-auto">
-                                    Please review all the captured details before finalizing the consultation record.
-                                    A digital copy will be sent to the patient.
-                                </p>
-
-                                <div className="grid grid-cols-2 gap-4 max-w-sm mx-auto mt-10">
-                                    <div className="card p-4 bg-gray-50 border-none">
-                                        <p className="text-[10px] font-black text-gray-400 uppercase">Medicines</p>
-                                        <p className="text-xl font-black text-primary">{medicines.filter(m => m.medicineName).length}</p>
+                            <div className="space-y-10 animate-fade-in py-6">
+                                <div className="text-center">
+                                    <div className="w-16 h-16 bg-green-50 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <ClipboardCheck className="w-8 h-8" />
                                     </div>
-                                    <div className="card p-4 bg-gray-50 border-none">
-                                        <p className="text-[10px] font-black text-gray-400 uppercase">Follow-up</p>
-                                        <p className="text-xl font-black text-primary">{followUp.scheduledDate ? 'Yes' : 'No'}</p>
+                                    <h3 className="text-2xl font-black text-gray-900">Review Record</h3>
+                                    <p className="text-gray-500 font-medium">Please verify the details before final submission</p>
+                                </div>
+
+                                <div className="grid md:grid-cols-2 gap-8 text-left">
+                                    {/* History Summary */}
+                                    <div className="space-y-6">
+                                        <div className="p-6 bg-gray-50 rounded-2xl border border-gray-100">
+                                            <div className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">
+                                                <History className="w-3 h-3" /> Clinical History
+                                            </div>
+                                            <div className="space-y-4">
+                                                <div>
+                                                    <p className="text-[10px] font-black text-gray-400 uppercase mb-1">Chief Complaint</p>
+                                                    <p className="text-sm font-bold text-gray-700 leading-relaxed">{history.chiefComplaint || 'No complaint recorded'}</p>
+                                                </div>
+                                                {history.presentIllness && (
+                                                    <div>
+                                                        <p className="text-[10px] font-black text-gray-400 uppercase mb-1">Present Illness</p>
+                                                        <p className="text-sm font-bold text-gray-700 leading-relaxed truncate">{history.presentIllness}</p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        <div className="p-6 bg-gray-50 rounded-2xl border border-gray-100">
+                                            <div className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">
+                                                <Calendar className="w-3 h-3" /> Follow-up Details
+                                            </div>
+                                            {followUp.scheduledDate ? (
+                                                <div className="space-y-3">
+                                                    <div className="flex items-center gap-3">
+                                                        <p className="text-xs font-black text-primary bg-primary-subtle px-3 py-1 rounded-md">
+                                                            Scheduled: {format(new Date(followUp.scheduledDate), 'MMM dd, yyyy')}
+                                                        </p>
+                                                    </div>
+                                                    {followUp.notes && (
+                                                        <p className="text-xs text-gray-500 font-medium bg-white p-3 rounded-lg border border-gray-50 italic">
+                                                            "{followUp.notes}"
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            ) : (
+                                                <p className="text-xs text-gray-400 font-bold">No follow-up scheduled</p>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Medical Plan Summary */}
+                                    <div className="space-y-6">
+                                        <div className="p-6 bg-white rounded-2xl border border-gray-100 shadow-sm">
+                                            <div className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest mb-6">
+                                                <Pill className="w-3 h-3" /> Prescribed Medicines
+                                            </div>
+                                            <div className="space-y-5">
+                                                {medicines.filter(m => m.medicineName).length > 0 ? (
+                                                    medicines.filter(m => m.medicineName).map((m, idx) => (
+                                                        <div key={idx} className="flex justify-between items-start border-b border-gray-50 pb-4 last:border-0 last:pb-0">
+                                                            <div>
+                                                                <p className="font-black text-gray-800 text-sm">{m.medicineName}</p>
+                                                                <p className="text-[10px] font-bold text-gray-400 uppercase">{m.dosage || 'Standard'} • {m.frequency}</p>
+                                                            </div>
+                                                            <div className="text-right">
+                                                                <span className="text-[10px] bg-gray-50 px-2 py-1 rounded text-gray-400 font-black">{m.duration}</span>
+                                                            </div>
+                                                        </div>
+                                                    ))
+                                                ) : (
+                                                    <p className="text-xs text-gray-400 font-bold italic">No medications prescribed</p>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        <div className="p-6 bg-white rounded-2xl border border-gray-100 shadow-sm">
+                                            <div className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest mb-6">
+                                                <Shield className="w-3 h-3" /> Diagnostic Tests
+                                            </div>
+                                            <div className="space-y-4">
+                                                {tests.filter(t => t.testName).length > 0 ? (
+                                                    tests.filter(t => t.testName).map((t, idx) => (
+                                                        <div key={idx} className="flex flex-col gap-1 border-b border-gray-50 pb-4 last:border-0 last:pb-0">
+                                                            <p className="font-black text-gray-800 text-sm flex items-center gap-2">
+                                                                <div className="w-1.5 h-1.5 bg-primary rounded-full" /> {t.testName}
+                                                            </p>
+                                                            {t.instructions && <p className="text-[10px] text-gray-400 italic font-medium ml-3.5">{t.instructions}</p>}
+                                                        </div>
+                                                    ))
+                                                ) : (
+                                                    <p className="text-xs text-gray-400 font-bold italic">No diagnostic tests requested</p>
+                                                )}
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
