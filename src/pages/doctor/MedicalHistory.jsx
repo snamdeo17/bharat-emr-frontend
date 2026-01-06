@@ -37,6 +37,32 @@ const MedicalHistory = () => {
         v.id?.toString().includes(searchTerm)
     );
 
+    const [downloading, setDownloading] = useState({});
+
+    const handleDownloadPdf = async (visitId) => {
+        setDownloading(prev => ({ ...prev, [visitId]: true }));
+        try {
+            const response = await api.get(`/visits/${visitId}/prescription/pdf`, {
+                responseType: 'blob'
+            });
+
+            const blob = new Blob([response], { type: 'application/pdf' });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `prescription_${visitId}.pdf`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Failed to download PDF:', error);
+            alert('Failed to download PDF. Please try again.');
+        } finally {
+            setDownloading(prev => ({ ...prev, [visitId]: false }));
+        }
+    };
+
     return (
         <div className="min-h-screen bg-gray-50 flex">
             <DoctorSidebar />
@@ -131,10 +157,16 @@ const MedicalHistory = () => {
                                                             <Eye className="w-5 h-5" />
                                                         </button>
                                                         <button
-                                                            className="p-2 bg-gray-50 text-gray-400 rounded-lg hover:bg-primary-subtle hover:text-primary transition-all shadow-sm"
+                                                            className={`p-2 rounded-lg transition-all shadow-sm ${downloading[v.id] ? 'bg-primary-subtle text-primary' : 'bg-gray-50 text-gray-400 hover:bg-primary-subtle hover:text-primary'}`}
                                                             title="Download PDF"
+                                                            onClick={() => handleDownloadPdf(v.id)}
+                                                            disabled={downloading[v.id]}
                                                         >
-                                                            <Download className="w-5 h-5" />
+                                                            {downloading[v.id] ? (
+                                                                <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                                                            ) : (
+                                                                <Download className="w-5 h-5" />
+                                                            )}
                                                         </button>
                                                     </div>
                                                 </td>

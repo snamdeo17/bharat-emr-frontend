@@ -16,6 +16,7 @@ const PatientDetails = () => {
     const [patient, setPatient] = useState(null);
     const [visits, setVisits] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [downloading, setDownloading] = useState({});
 
     useEffect(() => {
         const fetchData = async () => {
@@ -38,6 +39,30 @@ const PatientDetails = () => {
 
         fetchData();
     }, [patientId]);
+
+    const handleDownloadPdf = async (visitId) => {
+        setDownloading(prev => ({ ...prev, [visitId]: true }));
+        try {
+            const response = await api.get(`/visits/${visitId}/prescription/pdf`, {
+                responseType: 'blob'
+            });
+
+            const blob = new Blob([response], { type: 'application/pdf' });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `prescription_${visitId}.pdf`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Failed to download PDF:', error);
+            alert('Failed to download PDF. Please try again.');
+        } finally {
+            setDownloading(prev => ({ ...prev, [visitId]: false }));
+        }
+    };
 
     if (loading) return <div className="min-h-screen flex items-center justify-center bg-gray-50"><div className="spinner"></div></div>;
     if (!patient) return <div className="min-h-screen flex items-center justify-center">Patient not found</div>;
@@ -157,8 +182,16 @@ const PatientDetails = () => {
                                                     <button className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-gray-400 hover:bg-primary-subtle hover:text-primary transition-all shadow-sm">
                                                         <Eye className="w-5 h-5" />
                                                     </button>
-                                                    <button className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-gray-400 hover:bg-primary-subtle hover:text-primary transition-all shadow-sm">
-                                                        <Download className="w-5 h-5" />
+                                                    <button
+                                                        className={`w-10 h-10 rounded-xl transition-all shadow-sm flex items-center justify-center ${downloading[visit.id] ? 'bg-primary-subtle text-primary' : 'bg-gray-50 text-gray-400 hover:bg-primary-subtle hover:text-primary'}`}
+                                                        onClick={() => handleDownloadPdf(visit.id)}
+                                                        disabled={downloading[visit.id]}
+                                                    >
+                                                        {downloading[visit.id] ? (
+                                                            <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                                                        ) : (
+                                                            <Download className="w-5 h-5" />
+                                                        )}
                                                     </button>
                                                 </div>
                                             </div>
