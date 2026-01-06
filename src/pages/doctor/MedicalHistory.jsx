@@ -152,7 +152,7 @@ const MedicalHistory = () => {
                                                         <button
                                                             className="p-2 bg-gray-50 text-gray-400 rounded-lg hover:bg-primary-subtle hover:text-primary transition-all shadow-sm"
                                                             title="View Case Details"
-                                                            onClick={() => navigate(`/doctor/patients/${v.patientId}`)}
+                                                            onClick={() => navigate(`/doctor/visit/${v.id}`)}
                                                         >
                                                             <Eye className="w-5 h-5" />
                                                         </button>

@@ -99,9 +99,6 @@ const PatientDetails = () => {
                         {/* Sidebar: Patient Info */}
                         <div className="space-y-8">
                             <div className="card text-center p-8 bg-white border-none shadow-sm">
-                                <div className="w-24 h-24 bg-primary-subtle rounded-3xl flex items-center justify-center mx-auto mb-6 text-primary border-4 border-white shadow-xl font-black text-3xl">
-                                    {patient.fullName?.charAt(0)}
-                                </div>
                                 <h2 className="text-2xl font-black text-gray-900 mb-1">{patient.fullName}</h2>
                                 <p className="text-primary font-bold text-sm uppercase tracking-widest mb-6">{patient.patientId}</p>
 
@@ -179,7 +176,10 @@ const PatientDetails = () => {
                                                     <h4 className="text-xl font-extrabold text-gray-900 leading-tight">Chief Complaint: {visit.chiefComplaint}</h4>
                                                 </div>
                                                 <div className="flex gap-2">
-                                                    <button className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-gray-400 hover:bg-primary-subtle hover:text-primary transition-all shadow-sm">
+                                                    <button
+                                                        onClick={() => navigate(`/doctor/visit/${visit.id}`)}
+                                                        className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-gray-400 hover:bg-primary-subtle hover:text-primary transition-all shadow-sm"
+                                                    >
                                                         <Eye className="w-5 h-5" />
                                                     </button>
                                                     <button

@@ -13,6 +13,7 @@ import PatientRegistry from './pages/doctor/PatientRegistry';
 import PatientDetails from './pages/doctor/PatientDetails';
 import Schedule from './pages/doctor/Schedule';
 import MedicalHistory from './pages/doctor/MedicalHistory';
+import VisitDetails from './pages/doctor/VisitDetails';
 import Settings from './pages/doctor/Settings';
 import './index.css';
 
@@ -118,6 +119,14 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute requiredRole="DOCTOR">
             <MedicalHistory />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/doctor/visit/:visitId"
+        element={
+          <ProtectedRoute requiredRole="DOCTOR">
+            <VisitDetails />
           </ProtectedRoute>
         }
       />
