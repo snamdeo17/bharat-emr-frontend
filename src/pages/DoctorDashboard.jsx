@@ -20,6 +20,7 @@ const DoctorDashboard = () => {
         totalPrescriptions: 0,
     });
     const [recentPatients, setRecentPatients] = useState([]);
+    const [recentFollowUps, setRecentFollowUps] = useState([]);
     const [loading, setLoading] = useState(true);
     const [sidebarOpen, setSidebarOpen] = useState(true);
 
@@ -29,13 +30,21 @@ const DoctorDashboard = () => {
 
     const fetchDashboardData = async () => {
         try {
-            const [statsRes, patientsRes] = await Promise.all([
+            const [statsRes, patientsRes, followUpsRes] = await Promise.all([
                 api.get('/doctor/stats'),
                 api.get('/doctor/patients/recent'),
+                api.get('/doctor/followups'),
             ]);
 
             setStats(statsRes);
             setRecentPatients(patientsRes);
+
+            // Filter only SCHEDULED ones and sort by date (closest first)
+            const upcoming = (followUpsRes || [])
+                .filter(f => f.status === 'SCHEDULED')
+                .sort((a, b) => new Date(a.scheduledDate) - new Date(b.scheduledDate))
+                .slice(0, 3);
+            setRecentFollowUps(upcoming);
         } catch (error) {
             console.error('Failed to fetch dashboard data:', error);
         } finally {
@@ -187,7 +196,7 @@ const DoctorDashboard = () => {
                                                                 </div>
                                                                 <div>
                                                                     <p className="font-bold text-gray-900">{p.fullName}</p>
-                                                                    <p className="text-xs text-gray-400">{p.mobile}</p>
+                                                                    <p className="text-xs text-gray-400">{p.mobileNumber}</p>
                                                                 </div>
                                                             </div>
                                                         </td>
@@ -231,21 +240,46 @@ const DoctorDashboard = () => {
                                 </button>
                             </div>
 
-                            <div className="card border-none shadow-sm">
-                                <h3 className="text-lg font-black text-gray-900 mb-4">Upcoming</h3>
+                            <div className="card border-none shadow-sm h-full">
+                                <div className="flex items-center justify-between mb-4">
+                                    <h3 className="text-lg font-black text-gray-900">Upcoming Visits</h3>
+                                    <button
+                                        onClick={() => navigate('/doctor/schedule')}
+                                        className="text-xs font-bold text-primary hover:underline"
+                                    >
+                                        View Schedule
+                                    </button>
+                                </div>
                                 <div className="flex flex-col gap-4">
-                                    {[1, 2, 3].map((_, i) => (
-                                        <div key={i} className="flex gap-4 p-4 rounded-xl hover:bg-gray-50 transition-colors cursor-pointer border border-transparent hover:border-gray-100">
-                                            <div className="w-12 h-12 bg-gray-50 rounded-xl flex flex-col items-center justify-center shrink-0">
-                                                <span className="text-xs font-black text-gray-400">MAY</span>
-                                                <span className="text-lg font-black text-gray-900 leading-tight">{10 + i}</span>
-                                            </div>
-                                            <div>
-                                                <p className="font-bold text-gray-900">Patient Review</p>
-                                                <p className="text-xs text-gray-400">10:30 AM • Video</p>
-                                            </div>
+                                    {loading ? (
+                                        [1, 2, 3].map(i => <div key={i} className="h-20 bg-gray-50 rounded-xl animate-pulse"></div>)
+                                    ) : recentFollowUps.length === 0 ? (
+                                        <div className="p-8 text-center text-gray-400 font-bold border-2 border-dashed border-gray-50 rounded-2xl">
+                                            No upcoming visits
                                         </div>
-                                    ))}
+                                    ) : (
+                                        recentFollowUps.map((f) => {
+                                            const date = new Date(f.scheduledDate);
+                                            return (
+                                                <div
+                                                    key={f.id}
+                                                    onClick={() => navigate('/doctor/schedule')}
+                                                    className="flex gap-4 p-4 rounded-xl hover:bg-gray-50 transition-colors cursor-pointer border border-transparent hover:border-gray-100 group"
+                                                >
+                                                    <div className="w-12 h-12 bg-primary-subtle text-primary rounded-xl flex flex-col items-center justify-center shrink-0 group-hover:bg-primary group-hover:text-white transition-colors">
+                                                        <span className="text-[10px] font-black uppercase">{date.toLocaleString('default', { month: 'short' })}</span>
+                                                        <span className="text-lg font-black leading-tight">{date.getDate()}</span>
+                                                    </div>
+                                                    <div className="min-w-0">
+                                                        <p className="font-bold text-gray-900 truncate">{f.patientName}</p>
+                                                        <p className="text-xs text-gray-400 font-medium">
+                                                            {date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • Follow-up
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })
+                                    )}
                                 </div>
                             </div>
                         </div>
