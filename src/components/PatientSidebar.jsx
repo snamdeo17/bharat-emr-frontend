@@ -10,6 +10,10 @@ const PatientSidebar = () => {
 
     const isActive = (path) => location.pathname === path;
 
+    const handleHistoryClick = () => {
+        navigate('/patient/history');
+    };
+
     return (
         <aside className="w-20 bg-white border-r border-gray-100 flex flex-col items-center py-6 gap-8 h-screen sticky top-0 flex-shrink-0">
             <div
@@ -29,8 +33,8 @@ const PatientSidebar = () => {
                 </button>
 
                 <button
-                    onClick={() => navigate('/patient/dashboard')}
-                    className={`p-3 rounded-xl transition-all ${isActive('/patient/history') ? 'bg-primary text-white' : 'text-gray-400 hover:bg-gray-50'}`}
+                    onClick={handleHistoryClick}
+                    className={`p-3 rounded-xl transition-all ${isActive('/patient/history') ? 'bg-primary text-white shadow-primary/20' : 'text-gray-400 hover:bg-gray-50'}`}
                     title="Medical History"
                 >
                     <History className="w-6 h-6" />

@@ -7,6 +7,7 @@ import DoctorRegistrationPage from './pages/DoctorRegistrationPage';
 import PatientRegistrationPage from './pages/PatientRegistrationPage';
 import DoctorDashboard from './pages/DoctorDashboard';
 import PatientDashboard from './pages/PatientDashboard';
+import PatientMedicalHistory from './pages/patient/PatientMedicalHistory';
 import AddPatient from './pages/doctor/AddPatient';
 import Consultation from './pages/doctor/Consultation';
 import PatientRegistry from './pages/doctor/PatientRegistry';
@@ -149,6 +150,14 @@ const AppRoutes = () => {
         }
       />
 
+      <Route
+        path="/patient/history"
+        element={
+          <ProtectedRoute requiredRole="PATIENT">
+            <PatientMedicalHistory />
+          </ProtectedRoute>
+        }
+      />
       <Route
         path="/patient/visit/:visitId"
         element={
