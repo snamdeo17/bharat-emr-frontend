@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
     Settings as SettingsIcon, User, Briefcase,
     Building, MapPin, Award, Save, ArrowLeft,
-    Phone, Mail, Activity, ShieldCheck, Heart, Plus
+    Phone, Mail, Activity, ShieldCheck, Heart, Plus, Check
 } from 'lucide-react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
@@ -215,14 +215,14 @@ const Settings = () => {
                                                             <div
                                                                 key={t.id}
                                                                 onClick={() => setFieldValue('preferredTheme', t.id)}
-                                                                className={`cursor-pointer rounded-2xl p-4 border-2 transition-all relative ${values.preferredTheme === t.id ? 'border-primary bg-primary/5 shadow-md shadow-primary/5' : 'border-gray-100 hover:border-gray-200'}`}
+                                                                className={`cursor-pointer rounded-2xl p-4 border-2 transition-all relative group ${values.preferredTheme === t.id ? 'theme-card-active' : 'border-gray-100 bg-white hover:border-gray-200'}`}
                                                             >
-                                                                <div className={`w-full h-8 ${t.class} rounded-lg mb-2 shadow-sm`}></div>
-                                                                <div className="flex items-center justify-center gap-2">
-                                                                    <div className={`w-3 h-3 rounded-full border-2 ${values.preferredTheme === t.id ? 'border-primary bg-primary' : 'border-gray-300'}`}>
-                                                                        {values.preferredTheme === t.id && <div className="w-1 h-1 bg-white rounded-full m-auto mt-0.5"></div>}
+                                                                <div className={`w-full h-12 ${t.class} rounded-xl mb-3 shadow-sm group-hover:shadow-md transition-shadow`}></div>
+                                                                <div className="flex items-center gap-3">
+                                                                    <div className={`radio-orb ${values.preferredTheme === t.id ? 'radio-orb-active' : 'group-hover:border-gray-400'}`}>
+                                                                        {values.preferredTheme === t.id && <div className="radio-inner" />}
                                                                     </div>
-                                                                    <span className="text-[10px] font-black uppercase tracking-widest block text-center">{t.name}</span>
+                                                                    <span className={`text-[11px] font-black uppercase tracking-wider ${values.preferredTheme === t.id ? 'text-primary' : 'text-gray-400'}`}>{t.name}</span>
                                                                 </div>
                                                             </div>
                                                         ))}
