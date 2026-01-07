@@ -7,14 +7,19 @@ import {
 } from 'lucide-react';
 import api from '../../config/api';
 import { format } from 'date-fns';
+import { useAuth } from '../../context/AuthContext';
 import DoctorSidebar from '../../components/DoctorSidebar';
+import PatientSidebar from '../../components/PatientSidebar';
 
 const VisitDetails = () => {
     const { visitId } = useParams();
     const navigate = useNavigate();
+    const { user } = useAuth();
     const [visit, setVisit] = useState(null);
     const [loading, setLoading] = useState(true);
     const [downloading, setDownloading] = useState(false);
+
+    const isDoctor = user?.userType === 'DOCTOR';
 
     useEffect(() => {
         const fetchVisitDetails = async () => {
@@ -55,7 +60,7 @@ const VisitDetails = () => {
 
     if (loading) return (
         <div className="min-h-screen bg-gray-50 flex">
-            <DoctorSidebar />
+            {isDoctor ? <DoctorSidebar /> : <PatientSidebar />}
             <div className="flex-1 flex items-center justify-center">
                 <div className="spinner"></div>
             </div>
@@ -64,7 +69,7 @@ const VisitDetails = () => {
 
     if (!visit) return (
         <div className="min-h-screen bg-gray-50 flex">
-            <DoctorSidebar />
+            {isDoctor ? <DoctorSidebar /> : <PatientSidebar />}
             <div className="flex-1 flex flex-col items-center justify-center">
                 <p className="text-gray-500 font-bold mb-4">Visit case record not found.</p>
                 <button onClick={() => navigate(-1)} className="btn btn-primary">Go Back</button>
@@ -74,7 +79,7 @@ const VisitDetails = () => {
 
     return (
         <div className="min-h-screen bg-gray-50 flex">
-            <DoctorSidebar />
+            {isDoctor ? <DoctorSidebar /> : <PatientSidebar />}
 
             <main className="flex-1 p-8 overflow-y-auto h-screen">
                 <div className="max-w-4xl mx-auto">
@@ -125,12 +130,14 @@ const VisitDetails = () => {
                                         <p className="text-sm font-bold text-gray-700">Visit Type: Consultation</p>
                                     </div>
                                 </div>
-                                <button
-                                    onClick={() => navigate(`/doctor/patients/${visit.patientId}`)}
-                                    className="w-full py-3 bg-gray-50 text-gray-400 font-black text-[10px] uppercase tracking-widest rounded-xl hover:bg-primary-subtle hover:text-primary transition-all"
-                                >
-                                    View Full Patient Profile
-                                </button>
+                                {isDoctor && (
+                                    <button
+                                        onClick={() => navigate(`/doctor/patients/${visit.patientId}`)}
+                                        className="w-full py-3 bg-gray-50 text-gray-400 font-black text-[10px] uppercase tracking-widest rounded-xl hover:bg-primary-subtle hover:text-primary transition-all"
+                                    >
+                                        View Full Patient Profile
+                                    </button>
+                                )}
                             </div>
                         </div>
 

@@ -15,6 +15,7 @@ const PatientDashboard = () => {
     const [visits, setVisits] = useState([]);
     const [upcomingFollowups, setUpcomingFollowups] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [downloading, setDownloading] = useState({});
 
     useEffect(() => {
         fetchDashboardData();
@@ -36,19 +37,69 @@ const PatientDashboard = () => {
         }
     };
 
+    const handleDownloadPdf = async (visitId) => {
+        setDownloading(prev => ({ ...prev, [visitId]: true }));
+        try {
+            const response = await api.get(`/visits/${visitId}/prescription/pdf`, {
+                responseType: 'blob'
+            });
+
+            const blob = new Blob([response], { type: 'application/pdf' });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `prescription_${visitId}.pdf`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Failed to download PDF:', error);
+            alert('Failed to download PDF. Please try again.');
+        } finally {
+            setDownloading(prev => ({ ...prev, [visitId]: false }));
+        }
+    };
+
+    const handleHelpdesk = () => {
+        alert('Connecting to our 24/7 Support Line: +1-800-BHARAT-EMR');
+        window.location.href = 'tel:+18002427284';
+    };
+
     return (
         <div className="flex min-h-screen bg-gray-50">
             {/* Minimal Sidebar for Patient */}
             <aside className="w-20 bg-white border-r border-gray-100 flex flex-col items-center py-6 gap-8 h-screen sticky top-0 flex-shrink-0">
-                <div className="w-10 h-10 bg-primary flex items-center justify-center rounded-xl shadow-lg">
+                <div className="w-10 h-10 bg-primary flex items-center justify-center rounded-xl shadow-lg cursor-pointer" onClick={() => navigate('/patient/dashboard')}>
                     <Activity className="text-white w-6 h-6" />
                 </div>
                 <div className="flex flex-col gap-4">
-                    <button className="p-3 bg-primary text-white rounded-xl shadow-md"><Activity className="w-6 h-6" /></button>
-                    <button className="p-3 text-gray-400 hover:bg-gray-50 rounded-xl"><History className="w-6 h-6" /></button>
-                    <button className="p-3 text-gray-400 hover:bg-gray-50 rounded-xl"><Calendar className="w-6 h-6" /></button>
+                    <button
+                        onClick={() => navigate('/patient/dashboard')}
+                        className="p-3 bg-primary text-white rounded-xl shadow-md"
+                        title="Dashboard"
+                    >
+                        <Activity className="w-6 h-6" />
+                    </button>
+                    <button
+                        onClick={() => {
+                            const element = document.getElementById('visit-history');
+                            element?.scrollIntoView({ behavior: 'smooth' });
+                        }}
+                        className="p-3 text-gray-400 hover:bg-gray-50 rounded-xl"
+                        title="Medical History"
+                    >
+                        <History className="w-6 h-6" />
+                    </button>
+                    <button
+                        className="p-3 text-gray-400 hover:bg-gray-50 rounded-xl"
+                        title="Calendar"
+                        onClick={() => alert('Calendar feature coming soon!')}
+                    >
+                        <Calendar className="w-6 h-6" />
+                    </button>
                 </div>
-                <button onClick={logout} className="mt-auto p-3 text-red-500 hover:bg-red-50 rounded-xl"><LogOut className="w-6 h-6" /></button>
+                <button onClick={logout} className="mt-auto p-3 text-red-500 hover:bg-red-50 rounded-xl" title="Logout"><LogOut className="w-6 h-6" /></button>
             </aside>
 
             <main className="flex-1 min-w-0 overflow-y-auto">
@@ -78,7 +129,7 @@ const PatientDashboard = () => {
                     </div>
 
                     {/* Stats Grid */}
-                    <div className="grid md-grid-cols-3 gap-6 mb-12 slide-up" style={{ animationDelay: '100ms' }}>
+                    <div className="grid md:grid-cols-3 gap-6 mb-12 slide-up" style={{ animationDelay: '100ms' }}>
                         <div className="card p-6 border-none shadow-sm flex items-center gap-6">
                             <div className="w-14 h-14 bg-primary-subtle text-primary rounded-2xl flex items-center justify-center flex-shrink-0">
                                 <FileText className="w-7 h-7" />
@@ -111,11 +162,11 @@ const PatientDashboard = () => {
                     </div>
 
                     {/* Content Section */}
-                    <div className="grid lg-grid-cols-3 gap-10 slide-up" style={{ animationDelay: '200ms' }}>
-                        <div className="lg-col-span-2">
-                            <div className="flex items-center justify-between mb-6">
+                    <div className="grid lg:grid-cols-3 gap-10 slide-up" style={{ animationDelay: '200ms' }}>
+                        <div className="lg:col-span-2">
+                            <div id="visit-history" className="flex items-center justify-between mb-6">
                                 <h3 className="text-xl font-black text-gray-900">Recent Medical Visits</h3>
-                                <button className="text-primary font-bold text-sm hover:underline">View History</button>
+                                <button className="text-primary font-bold text-sm hover:underline" onClick={() => navigate('/patient/dashboard')}>Refresh</button>
                             </div>
 
                             {loading ? (
@@ -140,11 +191,19 @@ const PatientDashboard = () => {
                                                 </div>
                                             </div>
                                             <div className="flex gap-3 mt-6 pt-6 border-t border-gray-50">
-                                                <button onClick={() => navigate(`/patient/visits/${visit.id}`)} className="btn btn-outline py-2 text-sm flex-1">
+                                                <button onClick={() => navigate(`/patient/visit/${visit.id}`)} className="btn btn-outline py-2 text-sm flex-1 flex items-center justify-center gap-2">
                                                     <Eye className="w-4 h-4" /> View Case
                                                 </button>
-                                                <button className="btn btn-primary py-2 text-sm flex-1">
-                                                    <Download className="w-4 h-4" /> E-Prescription
+                                                <button
+                                                    onClick={() => handleDownloadPdf(visit.id)}
+                                                    disabled={downloading[visit.id]}
+                                                    className="btn btn-primary py-2 text-sm flex-1 flex items-center justify-center gap-2"
+                                                >
+                                                    {downloading[visit.id] ? (
+                                                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                                    ) : (
+                                                        <><Download className="w-4 h-4" /> E-Prescription</>
+                                                    )}
                                                 </button>
                                             </div>
                                         </div>
@@ -166,7 +225,7 @@ const PatientDashboard = () => {
                                             <div key={f.id} className="bg-blue-50 p-4 rounded-xl border border-primary-10">
                                                 <div className="flex items-center gap-3 mb-2">
                                                     <Calendar className="w-4 h-4 text-primary" />
-                                                    <span className="text-sm font-bold text-primary">{format(new Date(f.followupDate), 'MMM dd')}</span>
+                                                    <span className="text-sm font-bold text-primary">{format(new Date(f.scheduledDate), 'MMM dd')}</span>
                                                 </div>
                                                 <p className="font-bold text-gray-900">Dr. {f.doctorName}</p>
                                                 <p className="text-xs text-gray-500 mt-1">Check-up appointment</p>
@@ -179,7 +238,7 @@ const PatientDashboard = () => {
                             <div className="card glass p-6">
                                 <h4 className="font-black text-gray-900 mb-2">Need Support?</h4>
                                 <p className="text-gray-500 text-sm mb-4 leading-relaxed">Our clinical support team is available 24/7 for your assistance.</p>
-                                <button className="btn btn-primary w-full text-xs py-3">Contact Helpdesk</button>
+                                <button onClick={handleHelpdesk} className="btn btn-primary w-full text-xs py-3">Contact Helpdesk</button>
                             </div>
                         </div>
                     </div>
@@ -190,4 +249,3 @@ const PatientDashboard = () => {
 };
 
 export default PatientDashboard;
-

@@ -149,6 +149,14 @@ const AppRoutes = () => {
         }
       />
 
+      <Route
+        path="/patient/visit/:visitId"
+        element={
+          <ProtectedRoute requiredRole="PATIENT">
+            <VisitDetails />
+          </ProtectedRoute>
+        }
+      />
       {/* Fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
