@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
     History, Search, Filter, ArrowLeft,
     FileText, Calendar, User, Eye, Download,
-    Activity, ChevronRight, Clock
+    Activity, ChevronRight, Clock, Edit2
 } from 'lucide-react';
 import api from '../../config/api';
 import { format } from 'date-fns';
@@ -155,6 +155,13 @@ const MedicalHistory = () => {
                                                             onClick={() => navigate(`/doctor/visit/${v.id}`)}
                                                         >
                                                             <Eye className="w-5 h-5" />
+                                                        </button>
+                                                        <button
+                                                            className="p-2 bg-gray-50 text-gray-400 rounded-lg hover:bg-primary-subtle hover:text-primary transition-all shadow-sm"
+                                                            title="Edit Record"
+                                                            onClick={() => navigate(`/doctor/consultation/edit/${v.id}`)}
+                                                        >
+                                                            <Edit2 className="w-5 h-5" />
                                                         </button>
                                                         <button
                                                             className={`p-2 rounded-lg transition-all shadow-sm ${downloading[v.id] ? 'bg-primary-subtle text-primary' : 'bg-gray-50 text-gray-400 hover:bg-primary-subtle hover:text-primary'}`}

@@ -109,6 +109,14 @@ const AppRoutes = () => {
         }
       />
       <Route
+        path="/doctor/consultation/edit/:visitId"
+        element={
+          <ProtectedRoute requiredRole="DOCTOR">
+            <Consultation />
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/doctor/schedule"
         element={
           <ProtectedRoute requiredRole="DOCTOR">

@@ -10,8 +10,9 @@ import { format } from 'date-fns';
 import DoctorSidebar from '../../components/DoctorSidebar';
 
 const Consultation = () => {
-    const { patientId } = useParams();
+    const { patientId, visitId } = useParams();
     const navigate = useNavigate();
+    const isEditMode = !!visitId;
     const [patient, setPatient] = useState(null);
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(true);
@@ -40,19 +41,49 @@ const Consultation = () => {
     });
 
     useEffect(() => {
-        const fetchPatient = async () => {
+        const fetchInitialData = async () => {
             try {
-                const data = await api.get('/doctor/patients');
-                const p = data.find(p => p.patientId === patientId);
-                if (p) setPatient(p);
+                if (isEditMode) {
+                    const visitData = await api.get(`/visits/${visitId}`);
+                    setHistory({
+                        chiefComplaint: visitData.chiefComplaint || '',
+                        presentIllness: visitData.presentIllness || '',
+                        pastIllness: visitData.pastIllness || '',
+                        medicalHistory: visitData.medicalHistory || '',
+                        surgicalHistory: visitData.surgicalHistory || '',
+                        clinicalNotes: visitData.clinicalNotes || ''
+                    });
+
+                    if (visitData.medicines && visitData.medicines.length > 0) {
+                        setMedicines(visitData.medicines);
+                    }
+                    if (visitData.tests && visitData.tests.length > 0) {
+                        setTests(visitData.tests);
+                    }
+                    if (visitData.followUp) {
+                        setFollowUp({
+                            scheduledDate: visitData.followUp.scheduledDate ? visitData.followUp.scheduledDate.split('T')[0] : '',
+                            notes: visitData.followUp.notes || ''
+                        });
+                    }
+
+                    // For edit mode, we use patientId from visit record
+                    const patients = await api.get('/doctor/patients');
+                    const targetPatient = patients.find(p => p.id === visitData.patientId || p.patientId === visitData.patientId);
+                    if (targetPatient) setPatient(targetPatient);
+                } else {
+                    const patients = await api.get('/doctor/patients');
+                    const targetPatient = patients.find(p => p.patientId === patientId);
+                    if (targetPatient) setPatient(targetPatient);
+                }
             } catch (error) {
-                console.error('Failed to fetch patient:', error);
+                console.error('Failed to fetch initial data:', error);
             } finally {
                 setLoading(false);
             }
         };
-        fetchPatient();
-    }, [patientId]);
+        fetchInitialData();
+    }, [patientId, visitId, isEditMode]);
 
     const handleNext = () => setStep(step + 1);
     const handleBack = () => setStep(step - 1);
@@ -76,16 +107,22 @@ const Consultation = () => {
     const handleSubmit = async () => {
         try {
             const visitData = {
-                patientId: patient.id,
+                patientId: patient.id || patient.patientId,
                 ...history,
                 medicines: medicines.filter(m => m.medicineName),
                 tests: tests.filter(t => t.testName),
                 followUp: followUp.scheduledDate ? followUp : null
             };
-            await api.post('/visits', visitData);
-            navigate('/doctor/dashboard');
+
+            if (isEditMode) {
+                await api.put(`/visits/${visitId}`, visitData);
+            } else {
+                await api.post('/visits', visitData);
+            }
+            navigate('/doctor/history');
         } catch (error) {
             console.error('Failed to submit visit:', error);
+            alert('Failed to save visit details. Please try again.');
         }
     };
 
@@ -111,8 +148,12 @@ const Consultation = () => {
                                 <ArrowLeft className="w-5 h-5" />
                             </button>
                             <div>
-                                <h1 className="text-2xl font-black text-gray-900 leading-tight">Consultation Session</h1>
-                                <p className="text-sm font-bold text-gray-400">Recording medical encounter for {patient?.fullName}</p>
+                                <h1 className="text-2xl font-black text-gray-900 leading-tight">
+                                    {isEditMode ? 'Edit Case Record' : 'Consultation Session'}
+                                </h1>
+                                <p className="text-sm font-bold text-gray-400">
+                                    {isEditMode ? `Updating clinical notes for ${patient?.fullName}` : `Recording medical encounter for ${patient?.fullName}`}
+                                </p>
                             </div>
                         </div>
                         <div className="flex items-center gap-3 bg-white p-2 pr-6 rounded-2xl shadow-sm">
@@ -417,7 +458,7 @@ const Consultation = () => {
                             </button>
                         ) : (
                             <button onClick={handleSubmit} className="btn btn-primary px-10 shadow-xl shadow-primary/20 flex items-center gap-2">
-                                <Save className="w-4 h-4" /> Finalize & Submit
+                                <Save className="w-4 h-4" /> {isEditMode ? 'Update & Save' : 'Finalize & Submit'}
                             </button>
                         )}
                     </div>
