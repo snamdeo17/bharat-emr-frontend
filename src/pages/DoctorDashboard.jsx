@@ -86,12 +86,12 @@ const DoctorDashboard = () => {
             <main className="flex-1 min-w-0 overflow-y-auto">
                 <header className="h-20 bg-white-80 backdrop-blur-md border-b border-gray-100 sticky top-0 z-40 px-8 flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                        <div className="hidden md-flex relative">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <div className="hidden md-flex items-center bg-gray-50 rounded-xl px-3 border border-gray-100 focus-within:border-primary focus-within:bg-white transition-all shadow-sm h-10 w-80">
+                            <Search className="w-4 h-4 text-gray-400 shrink-0" />
                             <input
                                 type="text"
                                 placeholder="Search records..."
-                                className="input h-10 w-80 pl-10 text-sm"
+                                className="w-full bg-transparent border-none py-1 px-3 focus:outline-none text-sm font-medium text-gray-900"
                             />
                         </div>
                     </div>

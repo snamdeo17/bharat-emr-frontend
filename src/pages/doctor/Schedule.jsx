@@ -71,12 +71,12 @@ const Schedule = () => {
 
                     {/* Controls */}
                     <div className="grid md:grid-cols-4 gap-4 mb-8">
-                        <div className="md:col-span-2 relative">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                        <div className="md:col-span-2 flex items-center bg-white rounded-xl px-4 shadow-sm border border-transparent focus-within:border-primary transition-all h-12">
+                            <Search className="text-gray-400 w-5 h-5 shrink-0" />
                             <input
                                 type="text"
                                 placeholder="Search patients or notes..."
-                                className="input pl-12 h-12 shadow-sm border-none"
+                                className="w-full bg-transparent border-none py-2 px-3 focus:outline-none font-bold text-gray-900"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />

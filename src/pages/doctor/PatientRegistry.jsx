@@ -62,12 +62,12 @@ const PatientRegistry = () => {
 
                     {/* Search and Filters */}
                     <div className="bg-white p-4 rounded-2xl shadow-sm mb-8 flex flex-col md-flex gap-4">
-                        <div className="relative flex-1">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                        <div className="flex-1 flex items-center bg-gray-50 rounded-xl px-4 focus-within:bg-white focus-within:ring-2 focus-within:ring-primary/20 transition-all border border-transparent focus-within:border-primary/30">
+                            <Search className="text-gray-400 w-5 h-5 flex-shrink-0" />
                             <input
                                 type="text"
                                 placeholder="Search by name, ID or mobile number..."
-                                className="input pl-12 h-12"
+                                className="w-full bg-transparent border-none py-3 px-3 focus:outline-none font-bold text-gray-900 placeholder:text-gray-400"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />

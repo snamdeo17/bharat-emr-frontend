@@ -109,16 +109,12 @@ const LoginPage = () => {
                                 <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">
                                     Mobile Number
                                 </label>
-                                <div className="relative group">
-                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                        <Phone className="w-5 h-5 text-gray-400 group-focus-within:text-primary transition-colors" />
-                                    </div>
-                                    <div className="absolute inset-y-0 left-12 flex items-center pointer-events-none">
-                                        <span className="text-gray-400 font-bold border-r border-gray-200 pr-3">+91</span>
-                                    </div>
+                                <div className="flex items-center bg-white/50 backdrop-blur-sm rounded-2xl px-4 border border-gray-200 focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10 transition-all shadow-sm h-14 group">
+                                    <Phone className="w-5 h-5 text-gray-400 group-focus-within:text-primary transition-colors shrink-0" />
+                                    <span className="text-gray-400 font-bold border-r border-gray-200 px-4 mr-2">+91</span>
                                     <input
                                         type="tel"
-                                        className="input pl-24 h-14 text-lg font-semibold"
+                                        className="w-full bg-transparent border-none py-3 focus:outline-none text-lg font-semibold text-gray-900"
                                         placeholder="00000 00000"
                                         value={mobileNumber}
                                         onChange={(e) => setMobileNumber(e.target.value.replace(/\D/g, '').slice(0, 10))}
@@ -144,13 +140,11 @@ const LoginPage = () => {
                                 <label className="block text-sm font-bold text-gray-700 mb-2 ml-1 text-center">
                                     One-Time Password
                                 </label>
-                                <div className="relative">
-                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                        <Lock className="w-5 h-5 text-gray-400" />
-                                    </div>
+                                <div className="flex items-center bg-white/50 backdrop-blur-sm rounded-2xl px-4 border border-gray-200 focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10 transition-all shadow-sm h-16 group">
+                                    <Lock className="w-5 h-5 text-gray-400 group-focus-within:text-primary transition-colors shrink-0" />
                                     <input
                                         type="text"
-                                        className="input pl-12 h-16 text-center text-3xl tracking-[1rem] font-black placeholder:tracking-normal placeholder:text-gray-200"
+                                        className="w-full bg-transparent border-none py-3 focus:outline-none text-center text-3xl tracking-[1rem] font-black placeholder:tracking-normal placeholder:text-gray-200 text-gray-900"
                                         placeholder="......"
                                         value={otp}
                                         onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}

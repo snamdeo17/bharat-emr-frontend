@@ -175,16 +175,12 @@ const PatientRegistrationPage = () => {
                                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                                     Mobile Number
                                 </label>
-                                <div className="relative">
-                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                        <Phone className="w-5 h-5 text-gray-400" />
-                                    </div>
-                                    <div className="absolute inset-y-0 left-12 flex items-center pointer-events-none">
-                                        <span className="text-gray-600 font-medium">+91</span>
-                                    </div>
+                                <div className="flex items-center bg-white rounded-xl px-4 border border-gray-200 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all shadow-sm h-14">
+                                    <Phone className="w-5 h-5 text-gray-400 shrink-0" />
+                                    <span className="text-gray-600 font-bold px-3 border-r border-gray-100 mr-2">+91</span>
                                     <input
                                         type="tel"
-                                        className="input pl-24"
+                                        className="w-full bg-transparent border-none py-3 focus:outline-none font-bold text-gray-900 text-lg"
                                         placeholder="Enter 10-digit mobile number"
                                         value={mobileNumber}
                                         onChange={(e) => setMobileNumber(e.target.value.replace(/\D/g, '').slice(0, 10))}

@@ -91,9 +91,6 @@ const AddPatient = () => {
 
                     {/* Intro Section */}
                     <div className="mb-12">
-                        <div className="inline-flex items-center justify-center w-14 h-14 bg-primary rounded-2xl mb-6 shadow-lg">
-                            <Users className="w-7 h-7 text-white" />
-                        </div>
                         <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight mb-3">
                             Onboard New Patient
                         </h1>
@@ -144,42 +141,36 @@ const AddPatient = () => {
                                     <div className="grid md-grid-cols-2 gap-x-8 gap-y-10">
                                         <div className="space-y-2">
                                             <label className="text-sm font-extrabold text-gray-700 ml-1 uppercase tracking-wider">Full Name *</label>
-                                            <div className="relative">
-                                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-                                                    <User className="w-5 h-5" />
-                                                </div>
-                                                <Field name="fullName" className={`input !pl-12 ${touched.fullName && errors.fullName ? 'border-red-500' : ''}`} placeholder="Enter full name" />
+                                            <div className="flex items-center bg-gray-50 rounded-xl px-4 border border-transparent focus-within:border-primary focus-within:bg-white transition-all shadow-sm">
+                                                <User className="text-gray-400 w-5 h-5 shrink-0" />
+                                                <Field name="fullName" className="w-full bg-transparent border-none py-3 px-3 focus:outline-none font-bold text-gray-900" placeholder="Enter full name" />
                                             </div>
                                             <ErrorMessage name="fullName" component="div" className="text-red-500 text-xs font-bold ml-1" />
                                         </div>
 
                                         <div className="space-y-2">
                                             <label className="text-sm font-extrabold text-gray-700 ml-1 uppercase tracking-wider">Mobile Number *</label>
-                                            <div className="relative">
-                                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">+91</div>
-                                                <Field name="mobileNumber" className={`input !pl-14 ${touched.mobileNumber && errors.mobileNumber ? 'border-red-500' : ''}`} placeholder="10-digit number" />
+                                            <div className="flex items-center bg-gray-50 rounded-xl px-4 border border-transparent focus-within:border-primary focus-within:bg-white transition-all shadow-sm">
+                                                <span className="text-gray-400 font-bold text-sm shrink-0">+91</span>
+                                                <Field name="mobileNumber" className="w-full bg-transparent border-none py-3 px-3 focus:outline-none font-bold text-gray-900" placeholder="10-digit number" />
                                             </div>
                                             <ErrorMessage name="mobileNumber" component="div" className="text-red-500 text-xs font-bold ml-1" />
                                         </div>
 
                                         <div className="space-y-2">
                                             <label className="text-sm font-extrabold text-gray-700 ml-1 uppercase tracking-wider">Email Address</label>
-                                            <div className="relative">
-                                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-                                                    <Mail className="w-5 h-5" />
-                                                </div>
-                                                <Field name="email" type="email" className="input !pl-12" placeholder="email@example.com" />
+                                            <div className="flex items-center bg-gray-50 rounded-xl px-4 border border-transparent focus-within:border-primary focus-within:bg-white transition-all shadow-sm">
+                                                <Mail className="text-gray-400 w-5 h-5 shrink-0" />
+                                                <Field name="email" type="email" className="w-full bg-transparent border-none py-3 px-3 focus:outline-none font-bold text-gray-900" placeholder="email@example.com" />
                                             </div>
                                             <ErrorMessage name="email" component="div" className="text-red-500 text-xs font-bold ml-1" />
                                         </div>
 
                                         <div className="space-y-2">
                                             <label className="text-sm font-extrabold text-gray-700 ml-1 uppercase tracking-wider">Date of Birth *</label>
-                                            <div className="relative">
-                                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-                                                    <Calendar className="w-5 h-5" />
-                                                </div>
-                                                <Field name="dateOfBirth" type="date" className={`input !pl-12 ${touched.dateOfBirth && errors.dateOfBirth ? 'border-red-500' : ''}`} />
+                                            <div className="flex items-center bg-gray-50 rounded-xl px-4 border border-transparent focus-within:border-primary focus-within:bg-white transition-all shadow-sm">
+                                                <Calendar className="text-gray-400 w-5 h-5 shrink-0" />
+                                                <Field name="dateOfBirth" type="date" className="w-full bg-transparent border-none py-3 px-3 focus:outline-none font-bold text-gray-900" />
                                             </div>
                                             <ErrorMessage name="dateOfBirth" component="div" className="text-red-500 text-xs font-bold ml-1" />
                                         </div>
@@ -265,20 +256,18 @@ const AddPatient = () => {
                                     <div className="grid md-grid-cols-2 gap-8">
                                         <div className="space-y-2">
                                             <label className="text-sm font-extrabold text-gray-700 ml-1 uppercase tracking-wider">Contact Person *</label>
-                                            <div className="relative">
-                                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-                                                    <User className="w-5 h-5" />
-                                                </div>
-                                                <Field name="emergencyContactName" className="input !pl-12" placeholder="Relation/Name" />
+                                            <div className="flex items-center bg-gray-50 rounded-xl px-4 border border-transparent focus-within:border-primary focus-within:bg-white transition-all shadow-sm">
+                                                <User className="text-gray-400 w-5 h-5 shrink-0" />
+                                                <Field name="emergencyContactName" className="w-full bg-transparent border-none py-3 px-3 focus:outline-none font-bold text-gray-900" placeholder="Relation/Name" />
                                             </div>
                                             <ErrorMessage name="emergencyContactName" component="div" className="text-red-500 text-xs font-bold ml-1" />
                                         </div>
 
                                         <div className="space-y-2">
                                             <label className="text-sm font-extrabold text-gray-700 ml-1 uppercase tracking-wider">Contact Number *</label>
-                                            <div className="relative">
-                                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">+91</div>
-                                                <Field name="emergencyContactNumber" className="input !pl-14" placeholder="10-digit number" />
+                                            <div className="flex items-center bg-gray-50 rounded-xl px-4 border border-transparent focus-within:border-primary focus-within:bg-white transition-all shadow-sm">
+                                                <span className="text-gray-400 font-bold text-sm shrink-0">+91</span>
+                                                <Field name="emergencyContactNumber" className="w-full bg-transparent border-none py-3 px-3 focus:outline-none font-bold text-gray-900" placeholder="10-digit number" />
                                             </div>
                                             <ErrorMessage name="emergencyContactNumber" component="div" className="text-red-500 text-xs font-bold ml-1" />
                                         </div>

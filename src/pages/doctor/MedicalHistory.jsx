@@ -84,12 +84,12 @@ const MedicalHistory = () => {
 
                     {/* Search and Filter Bar */}
                     <div className="bg-white p-4 rounded-2xl shadow-sm mb-8 flex gap-4">
-                        <div className="relative flex-1">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                        <div className="flex-1 flex items-center bg-gray-50 rounded-xl px-4 border border-transparent focus-within:border-primary focus-within:bg-white transition-all h-12">
+                            <Search className="text-gray-400 w-5 h-5 shrink-0" />
                             <input
                                 type="text"
                                 placeholder="Search by patient name, complaint, or visit ID..."
-                                className="input pl-12 h-12 border-none"
+                                className="w-full bg-transparent border-none py-2 px-3 focus:outline-none font-bold text-gray-900"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
