@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Settings as SettingsIcon, User, Briefcase,
@@ -18,6 +18,8 @@ const Settings = () => {
     const [doctor, setDoctor] = useState(null);
     const [loading, setLoading] = useState(true);
     const [message, setMessage] = useState('');
+    const isSaved = useRef(false);
+    const initialTheme = useRef(user?.preferredTheme || 'modern');
 
     const validationSchema = Yup.object({
         email: Yup.string().email('Invalid email address').required('Email is required'),
@@ -48,19 +50,24 @@ const Settings = () => {
     // Cleanup: Reset theme to saved preference when leaving without saving
     useEffect(() => {
         return () => {
-            if (user?.preferredTheme) {
-                setTheme(user.preferredTheme);
+            if (!isSaved.current && initialTheme.current) {
+                setTheme(initialTheme.current);
             }
         };
-    }, [user, setTheme]);
+    }, [setTheme]);
 
     const handleUpdate = async (values, { setSubmitting }) => {
         try {
             const result = await updateProfile(values);
             if (result.success) {
+                isSaved.current = true;
+                initialTheme.current = values.preferredTheme;
                 setMessage('Profile updated successfully!');
+                setDoctor(result.data); // Update local state with new server data
+                window.scrollTo({ top: 0, behavior: 'smooth' }); // Ensure message is visible
             } else {
                 setMessage(result.message);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             }
             setTimeout(() => setMessage(''), 3000);
         } catch (error) {
@@ -214,7 +221,10 @@ const Settings = () => {
                                                         ].map((t) => (
                                                             <div
                                                                 key={t.id}
-                                                                onClick={() => setFieldValue('preferredTheme', t.id)}
+                                                                onClick={() => {
+                                                                    setFieldValue('preferredTheme', t.id);
+                                                                    setTheme(t.id); // Immediate preview
+                                                                }}
                                                                 className={`cursor-pointer rounded-2xl p-4 border-2 transition-all relative group ${values.preferredTheme === t.id ? 'theme-card-active' : 'border-gray-100 bg-white hover:border-gray-200'}`}
                                                             >
                                                                 <div className={`w-full h-12 ${t.class} rounded-xl mb-3 shadow-sm group-hover:shadow-md transition-shadow`}></div>

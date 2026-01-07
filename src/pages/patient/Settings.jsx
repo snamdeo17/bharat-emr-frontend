@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     User, MapPin, Save, ArrowLeft,
@@ -16,6 +16,8 @@ const PatientSettings = () => {
     const [patient, setPatient] = useState(null);
     const [loading, setLoading] = useState(true);
     const [message, setMessage] = useState('');
+    const isSaved = useRef(false);
+    const initialTheme = useRef(user?.preferredTheme || 'modern');
 
     const validationSchema = Yup.object({
         email: Yup.string().email('Invalid email address').required('Email is required'),
@@ -40,19 +42,24 @@ const PatientSettings = () => {
 
     useEffect(() => {
         return () => {
-            if (user?.preferredTheme) {
-                setTheme(user.preferredTheme);
+            if (!isSaved.current && initialTheme.current) {
+                setTheme(initialTheme.current);
             }
         };
-    }, [user, setTheme]);
+    }, [setTheme]);
 
     const handleUpdate = async (values, { setSubmitting }) => {
         try {
             const result = await updateProfile(values);
             if (result.success) {
+                isSaved.current = true;
+                initialTheme.current = values.preferredTheme;
                 setMessage('Profile updated successfully!');
+                setPatient(result.data);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             } else {
                 setMessage(result.message);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             }
             setTimeout(() => setMessage(''), 3000);
         } catch (error) {
@@ -170,7 +177,10 @@ const PatientSettings = () => {
                                                         ].map((t) => (
                                                             <div
                                                                 key={t.id}
-                                                                onClick={() => setFieldValue('preferredTheme', t.id)}
+                                                                onClick={() => {
+                                                                    setFieldValue('preferredTheme', t.id);
+                                                                    setTheme(t.id);
+                                                                }}
                                                                 className={`cursor-pointer rounded-2xl p-4 border-2 transition-all relative group ${values.preferredTheme === t.id ? 'theme-card-active' : 'border-gray-100 bg-white hover:border-gray-200'}`}
                                                             >
                                                                 <div className={`w-full h-12 ${t.class} rounded-xl mb-3 shadow-sm group-hover:shadow-md transition-shadow`}></div>
