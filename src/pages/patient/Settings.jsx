@@ -1,31 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-    Settings as SettingsIcon, User, Briefcase,
-    Building, MapPin, Award, Save, ArrowLeft,
-    Phone, Mail, Activity, ShieldCheck, Heart, Plus
+    User, MapPin, Save, ArrowLeft,
+    Phone, Mail, Activity, ShieldCheck, Heart, Home
 } from 'lucide-react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import api from '../../config/api';
 import { useAuth } from '../../context/AuthContext';
+import PatientSidebar from '../../components/PatientSidebar';
 
-import DoctorSidebar from '../../components/DoctorSidebar';
-
-const Settings = () => {
+const PatientSettings = () => {
     const navigate = useNavigate();
     const { user, updateProfile, setTheme } = useAuth();
-    const [doctor, setDoctor] = useState(null);
+    const [patient, setPatient] = useState(null);
     const [loading, setLoading] = useState(true);
     const [message, setMessage] = useState('');
 
     const validationSchema = Yup.object({
         email: Yup.string().email('Invalid email address').required('Email is required'),
-        specialization: Yup.string().required('Specialization is required'),
-        qualification: Yup.string().required('Qualification is required'),
-        clinicName: Yup.string().required('Clinic name is required'),
-        clinicAddress: Yup.string().required('Address is required'),
-        yearsOfExperience: Yup.number().min(0).required('Required')
+        address: Yup.string().required('Address is required'),
     });
 
     useEffect(() => {
@@ -34,9 +28,8 @@ const Settings = () => {
 
     const fetchProfile = async () => {
         try {
-            const data = await api.get(`/doctor/profile`);
-            setDoctor(data);
-            // Sync current theme with saved preference on load
+            const data = await api.get(`/patient/profile`);
+            setPatient(data);
             if (data.preferredTheme) setTheme(data.preferredTheme);
         } catch (error) {
             console.error('Failed to fetch profile:', error);
@@ -45,7 +38,6 @@ const Settings = () => {
         }
     };
 
-    // Cleanup: Reset theme to saved preference when leaving without saving
     useEffect(() => {
         return () => {
             if (user?.preferredTheme) {
@@ -75,20 +67,20 @@ const Settings = () => {
 
     return (
         <div className="min-h-screen bg-gray-50 flex">
-            <DoctorSidebar />
+            <PatientSidebar />
 
             <main className="flex-1 p-8">
                 <div className="max-w-4xl mx-auto">
                     <div className="flex justify-between items-center mb-8">
                         <div>
                             <button
-                                onClick={() => navigate('/doctor/dashboard')}
+                                onClick={() => navigate('/patient/dashboard')}
                                 className="flex items-center gap-2 text-gray-400 font-bold hover:text-primary mb-2 transition-colors"
                             >
                                 <ArrowLeft className="w-4 h-4" /> Back to Dashboard
                             </button>
-                            <h1 className="text-3xl font-black text-gray-900">Account Settings</h1>
-                            <p className="text-gray-500 font-medium">Manage your professional profile and clinic details</p>
+                            <h1 className="text-3xl font-black text-gray-900">Your Settings</h1>
+                            <p className="text-gray-500 font-medium">Manage your personal profile and preferences</p>
                         </div>
                     </div>
 
@@ -103,23 +95,20 @@ const Settings = () => {
                         {/* Profile Brief */}
                         <div className="space-y-6">
                             <div className="card p-8 bg-white border-none shadow-sm text-center">
-                                <div className="w-24 h-24 bg-primary-subtle text-primary rounded-3xl flex items-center justify-center mx-auto mb-4 border-4 border-white shadow-xl relative group">
-                                    <span className="text-3xl font-black">{doctor?.fullName?.charAt(0)}</span>
-                                    <div className="absolute inset-0 bg-primary/20 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
-                                        <Plus className="text-white w-6 h-6" />
-                                    </div>
+                                <div className="w-24 h-24 bg-primary-subtle text-primary rounded-3xl flex items-center justify-center mx-auto mb-4 border-4 border-white shadow-xl">
+                                    <span className="text-3xl font-black">{patient?.fullName?.charAt(0)}</span>
                                 </div>
-                                <h2 className="text-xl font-black text-gray-900 leading-tight">Dr. {doctor?.fullName}</h2>
-                                <p className="text-xs font-black text-primary uppercase tracking-widest mt-1 mb-6">{doctor?.specialization}</p>
+                                <h2 className="text-xl font-black text-gray-900 leading-tight">{patient?.fullName}</h2>
+                                <p className="text-xs font-black text-primary uppercase tracking-widest mt-1 mb-6">Patient ID: {patient?.patientId}</p>
 
                                 <div className="space-y-4 text-left border-t border-gray-50 pt-6">
                                     <div className="flex items-center gap-3 text-sm font-bold text-gray-400">
                                         <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center"><Phone className="w-4 h-4" /></div>
-                                        {doctor?.mobileNumber}
+                                        {patient?.mobileNumber}
                                     </div>
                                     <div className="flex items-center gap-3 text-sm font-bold text-gray-400">
                                         <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center"><Heart className="w-4 h-4 text-red-400" /></div>
-                                        Verified Doctor
+                                        Health Profile Active
                                     </div>
                                 </div>
                             </div>
@@ -130,20 +119,14 @@ const Settings = () => {
                             <Formik
                                 enableReinitialize
                                 initialValues={{
-                                    email: doctor?.email || '',
-                                    specialization: doctor?.specialization || '',
-                                    qualification: doctor?.qualification || '',
-                                    yearsOfExperience: doctor?.yearsOfExperience || 0,
-                                    clinicName: doctor?.clinicName || '',
-                                    clinicAddress: doctor?.clinicAddress || '',
-                                    profilePhotoUrl: doctor?.profilePhotoUrl || '',
-                                    preferredTheme: doctor?.preferredTheme || 'modern'
+                                    email: patient?.email || '',
+                                    address: patient?.address || '',
+                                    preferredTheme: patient?.preferredTheme || 'modern'
                                 }}
                                 validationSchema={validationSchema}
                                 onSubmit={handleUpdate}
                             >
                                 {({ isSubmitting, values, setFieldValue }) => {
-                                    // Immediate Preview Effect
                                     // eslint-disable-next-line react-hooks/rules-of-hooks
                                     useEffect(() => {
                                         if (values.preferredTheme) {
@@ -155,46 +138,18 @@ const Settings = () => {
                                         <Form className="space-y-6">
                                             <div className="card p-8 bg-white border-none shadow-sm">
                                                 <h3 className="text-lg font-black text-gray-900 mb-6 flex items-center gap-2">
-                                                    <User className="w-5 h-5 text-primary" /> Professional Information
+                                                    <User className="w-5 h-5 text-primary" /> Personal Information
                                                 </h3>
-                                                <div className="grid md:grid-cols-2 gap-6">
+                                                <div className="space-y-4">
                                                     <div className="space-y-2">
                                                         <label className="text-xs font-black text-gray-400 uppercase tracking-widest">Email Address</label>
-                                                        <Field name="email" type="email" className="input bg-gray-50 border-none h-12" placeholder="doctor@example.com" />
+                                                        <Field name="email" type="email" className="input bg-gray-50 border-none h-12" placeholder="your@email.com" />
                                                         <ErrorMessage name="email" component="div" className="text-red-500 text-[10px] font-bold" />
                                                     </div>
                                                     <div className="space-y-2">
-                                                        <label className="text-xs font-black text-gray-400 uppercase tracking-widest">Experience (Years)</label>
-                                                        <Field name="yearsOfExperience" type="number" className="input bg-gray-50 border-none h-12" />
-                                                        <ErrorMessage name="yearsOfExperience" component="div" className="text-red-500 text-[10px] font-bold" />
-                                                    </div>
-                                                    <div className="space-y-2">
-                                                        <label className="text-xs font-black text-gray-400 uppercase tracking-widest">Specialization</label>
-                                                        <Field name="specialization" type="text" className="input bg-gray-50 border-none h-12" />
-                                                        <ErrorMessage name="specialization" component="div" className="text-red-500 text-[10px] font-bold" />
-                                                    </div>
-                                                    <div className="space-y-2">
-                                                        <label className="text-xs font-black text-gray-400 uppercase tracking-widest">Qualification</label>
-                                                        <Field name="qualification" type="text" className="input bg-gray-50 border-none h-12" />
-                                                        <ErrorMessage name="qualification" component="div" className="text-red-500 text-[10px] font-bold" />
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div className="card p-8 bg-white border-none shadow-sm">
-                                                <h3 className="text-lg font-black text-gray-900 mb-6 flex items-center gap-2">
-                                                    <Building className="w-5 h-5 text-primary" /> Clinic Information
-                                                </h3>
-                                                <div className="space-y-6">
-                                                    <div className="space-y-2">
-                                                        <label className="text-xs font-black text-gray-400 uppercase tracking-widest">Clinic / Hospital Name</label>
-                                                        <Field name="clinicName" type="text" className="input bg-gray-50 border-none h-12" />
-                                                        <ErrorMessage name="clinicName" component="div" className="text-red-500 text-[10px] font-bold" />
-                                                    </div>
-                                                    <div className="space-y-2">
-                                                        <label className="text-xs font-black text-gray-400 uppercase tracking-widest">Clinic Address</label>
-                                                        <Field name="clinicAddress" as="textarea" rows="3" className="input bg-gray-50 border-none py-4" />
-                                                        <ErrorMessage name="clinicAddress" component="div" className="text-red-500 text-[10px] font-bold" />
+                                                        <label className="text-xs font-black text-gray-400 uppercase tracking-widest">Full Address</label>
+                                                        <Field name="address" as="textarea" rows="3" className="input bg-gray-50 border-none py-4" />
+                                                        <ErrorMessage name="address" component="div" className="text-red-500 text-[10px] font-bold" />
                                                     </div>
                                                 </div>
                                             </div>
@@ -250,4 +205,4 @@ const Settings = () => {
     );
 };
 
-export default Settings;
+export default PatientSettings;

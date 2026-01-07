@@ -55,7 +55,14 @@ const DoctorSidebar = () => {
                                     }`}
                             >
                                 <div className="flex-shrink-0">{React.cloneElement(item.icon, { className: 'w-5 h-5' })}</div>
-                                {sidebarOpen && <span className="whitespace-nowrap font-bold">{item.label}</span>}
+                                {sidebarOpen && (
+                                    <div className="flex-1 flex justify-between items-center px-1">
+                                        <span className="whitespace-nowrap font-bold">{item.label}</span>
+                                        {item.label === 'Settings' && (
+                                            <span className="bg-white/20 text-[8px] px-1.5 py-0.5 rounded-full animate-pulse border border-white/30">NEW</span>
+                                        )}
+                                    </div>
+                                )}
                             </button>
                         );
                     })}
@@ -71,7 +78,7 @@ const DoctorSidebar = () => {
                     {sidebarOpen && <span className="whitespace-nowrap font-bold">Sign Out</span>}
                 </button>
             </div>
-        </aside>
+        </aside >
     );
 };
 

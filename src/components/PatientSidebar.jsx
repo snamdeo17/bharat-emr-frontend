@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Activity, History, Calendar, LogOut } from 'lucide-react';
+import { Activity, History, Calendar, LogOut, Settings } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const PatientSidebar = () => {
@@ -41,11 +41,11 @@ const PatientSidebar = () => {
                 </button>
 
                 <button
-                    onClick={() => alert('Calendar feature coming soon!')}
-                    className="p-3 text-gray-400 hover:bg-gray-50 rounded-xl transition-all"
-                    title="Calendar"
+                    onClick={() => navigate('/patient/settings')}
+                    className={`p-3 rounded-xl transition-all ${isActive('/patient/settings') ? 'bg-primary text-white shadow-primary/20' : 'text-gray-400 hover:bg-gray-50'}`}
+                    title="Settings"
                 >
-                    <Calendar className="w-6 h-6" />
+                    <Settings className="w-6 h-6" />
                 </button>
             </div>
 
