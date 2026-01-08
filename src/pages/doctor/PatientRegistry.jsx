@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
-    Users, Search, ArrowLeft, ChevronRight, ChevronLeft,
+    Users, Search, ArrowLeft, ChevronRight, ChevronLeft, ChevronUp, ChevronDown,
     Filter, Plus, UserPlus, Phone, Activity,
-    SlidersHorizontal, X, ArrowUpDown, Calendar,
+    SlidersHorizontal, X, Calendar,
     User, CheckCircle2, AlertCircle, MoreHorizontal
 } from 'lucide-react';
 import api from '../../config/api';
@@ -25,6 +25,7 @@ const PatientRegistry = () => {
         page: 1,
         size: 10
     });
+    const [localSearch, setLocalSearch] = useState('');
 
     // Helper to get params from URL
     const getParam = (key, defaultValue) => searchParams.get(key) || defaultValue;
@@ -98,6 +99,10 @@ const PatientRegistry = () => {
         fetchDoctors();
     }, []);
 
+    useEffect(() => {
+        setLocalSearch(search);
+    }, [search]);
+
     const updateParams = (newParams) => {
         const updated = new URLSearchParams(searchParams);
         Object.entries(newParams).forEach(([key, value]) => {
@@ -120,15 +125,30 @@ const PatientRegistry = () => {
     };
 
     const SortIcon = ({ field }) => {
-        if (sortBy !== field) return <ArrowUpDown className="w-3 h-3 text-gray-300" />;
-        return sortDir === 'asc' ? <ArrowUpDown className="w-3 h-3 text-primary rotate-180" /> : <ArrowUpDown className="w-3 h-3 text-primary" />;
+        const isActive = sortBy === field;
+        return (
+            <div className={`flex flex-col -gap-1 transition-all duration-300 ${isActive ? 'opacity-100 scale-110' : 'opacity-20 group-hover:opacity-50'}`}>
+                <ChevronUp className={`w-2.5 h-2.5 ${isActive && sortDir === 'asc' ? 'text-primary' : 'text-gray-400'}`} />
+                <ChevronDown className={`w-2.5 h-2.5 ${isActive && sortDir === 'desc' ? 'text-primary' : 'text-gray-400'}`} />
+            </div>
+        );
+    };
+    const handleSearchSubmit = (e) => {
+        if (e) e.preventDefault();
+        updateParams({ search: localSearch });
+    };
+
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            handleSearchSubmit();
+        }
     };
 
     return (
         <div className="min-h-screen bg-gray-50 flex">
             <DoctorSidebar />
 
-            <main className="flex-1 p-8">
+            <main className="flex-1 p-8 min-w-0">
                 <div className="max-w-6xl mx-auto">
                     {/* Header */}
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
@@ -159,14 +179,27 @@ const PatientRegistry = () => {
                                     type="text"
                                     placeholder="Search by name, patient ID, email or mobile..."
                                     className="w-full bg-transparent border-none py-3 px-4 focus:outline-none font-bold text-gray-900 placeholder:text-gray-400"
-                                    value={search}
-                                    onChange={(e) => updateParams({ search: e.target.value })}
+                                    value={localSearch}
+                                    onChange={(e) => setLocalSearch(e.target.value)}
+                                    onKeyDown={handleKeyDown}
                                 />
-                                {search && (
-                                    <button onClick={() => updateParams({ search: '' })} className="p-1 hover:bg-gray-100 rounded-full">
+                                {localSearch && (
+                                    <button
+                                        onClick={() => {
+                                            setLocalSearch('');
+                                            updateParams({ search: '' });
+                                        }}
+                                        className="p-1 hover:bg-gray-100 rounded-full mr-2"
+                                    >
                                         <X className="w-4 h-4 text-gray-400" />
                                     </button>
                                 )}
+                                <button
+                                    onClick={handleSearchSubmit}
+                                    className="bg-primary text-white text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
+                                >
+                                    Search
+                                </button>
                             </div>
                             <button
                                 onClick={() => setShowFilters(!showFilters)}
@@ -284,29 +317,45 @@ const PatientRegistry = () => {
                         <div className="overflow-x-auto">
                             <table className="w-full text-left border-collapse">
                                 <thead>
-                                    <tr className="bg-gray-50/50 border-b border-gray-100">
-                                        <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                                            <button onClick={() => handleSort('fullName')} className="flex items-center gap-2 hover:text-gray-600 transition-colors">
-                                                Patient Details <SortIcon field="fullName" />
+                                    <tr className="bg-white border-b border-gray-100">
+                                        <th className="px-8 py-4">
+                                            <button
+                                                onClick={() => handleSort('fullName')}
+                                                className={`group flex items-center gap-3 px-3 py-2 rounded-xl transition-all duration-300 ${sortBy === 'fullName' ? 'bg-primary/5 ring-1 ring-primary/10' : 'hover:bg-gray-50'}`}
+                                            >
+                                                <span className={`text-[10px] font-black uppercase tracking-widest ${sortBy === 'fullName' ? 'text-primary' : 'text-gray-400'}`}>Patient Details</span>
+                                                <SortIcon field="fullName" />
                                             </button>
                                         </th>
-                                        <th className="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">
-                                            <button onClick={() => handleSort('patientId')} className="flex items-center gap-2 mx-auto hover:text-gray-600 transition-colors">
-                                                ID <SortIcon field="patientId" />
+                                        <th className="px-6 py-4">
+                                            <button
+                                                onClick={() => handleSort('patientId')}
+                                                className={`group flex items-center gap-3 px-3 py-2 rounded-xl transition-all duration-300 mx-auto ${sortBy === 'patientId' ? 'bg-primary/5 ring-1 ring-primary/10' : 'hover:bg-gray-50'}`}
+                                            >
+                                                <span className={`text-[10px] font-black uppercase tracking-widest ${sortBy === 'patientId' ? 'text-primary' : 'text-gray-400'}`}>ID</span>
+                                                <SortIcon field="patientId" />
                                             </button>
                                         </th>
-                                        <th className="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                                            <button onClick={() => handleSort('age')} className="flex items-center gap-2 hover:text-gray-600 transition-colors">
-                                                Age/Gender <SortIcon field="age" />
+                                        <th className="px-6 py-4">
+                                            <button
+                                                onClick={() => handleSort('age')}
+                                                className={`group flex items-center gap-3 px-3 py-2 rounded-xl transition-all duration-300 ${sortBy === 'age' ? 'bg-primary/5 ring-1 ring-primary/10' : 'hover:bg-gray-50'}`}
+                                            >
+                                                <span className={`text-[10px] font-black uppercase tracking-widest ${sortBy === 'age' ? 'text-primary' : 'text-gray-400'}`}>Age/Gender</span>
+                                                <SortIcon field="age" />
                                             </button>
                                         </th>
-                                        <th className="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                                            <button onClick={() => handleSort('createdAt')} className="flex items-center gap-2 hover:text-gray-600 transition-colors">
-                                                Created at <SortIcon field="createdAt" />
+                                        <th className="px-6 py-4">
+                                            <button
+                                                onClick={() => handleSort('createdAt')}
+                                                className={`group flex items-center gap-3 px-3 py-2 rounded-xl transition-all duration-300 ${sortBy === 'createdAt' ? 'bg-primary/5 ring-1 ring-primary/10' : 'hover:bg-gray-50'}`}
+                                            >
+                                                <span className={`text-[10px] font-black uppercase tracking-widest ${sortBy === 'createdAt' ? 'text-primary' : 'text-gray-400'}`}>Created at</span>
+                                                <SortIcon field="createdAt" />
                                             </button>
                                         </th>
-                                        <th className="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Status</th>
-                                        <th className="px-8 py-5"></th>
+                                        <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest pl-6">Status</th>
+                                        <th className="px-8 py-4"></th>
                                     </tr>
                                 </thead>
                                 <tbody className="text-sm">
@@ -395,9 +444,7 @@ const PatientRegistry = () => {
                                                             <ChevronRight className="w-5 h-5" />
                                                         </button>
                                                     </div>
-                                                    <div className="group-hover:hidden text-gray-200">
-                                                        <MoreHorizontal className="w-5 h-5 ml-auto" />
-                                                    </div>
+
                                                 </td>
                                             </tr>
                                         ))

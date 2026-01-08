@@ -116,6 +116,12 @@ svg.lucide {
   padding: 0;
 }
 
+html {
+  font-size: 12px;
+  /* Increased density to avoid overflow on lower res desktops */
+  scroll-behavior: smooth;
+}
+
 body {
   font-family: 'Plus Jakarta Sans', sans-serif;
   background-color: var(--bg-main);
@@ -123,6 +129,7 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+  width: 100%;
 }
 
 h1,
@@ -200,6 +207,50 @@ h6 {
 
 .w-px {
   width: 1px;
+}
+
+.min-w-0 {
+  min-width: 0 !important;
+}
+
+.max-w-2xl {
+  max-width: 672px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.max-w-3xl {
+  max-width: 768px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.max-w-4xl {
+  max-width: 896px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.max-w-5xl {
+  max-width: 1024px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.max-w-6xl {
+  max-width: 1152px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.max-w-7xl {
+  max-width: 1280px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .flex {
@@ -706,6 +757,7 @@ h6 {
   max-width: var(--container-max);
   margin: 0 auto;
   padding: 0 1.5rem;
+  width: 100%;
 }
 
 .card {

@@ -67,7 +67,7 @@ const MedicalHistory = () => {
         <div className="min-h-screen bg-gray-50 flex">
             <DoctorSidebar />
 
-            <main className="flex-1 p-8">
+            <main className="flex-1 p-8 min-w-0">
                 <div className="max-w-6xl mx-auto">
                     <div className="flex justify-between items-start mb-10">
                         <div>

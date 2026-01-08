@@ -74,7 +74,7 @@ const AddPatient = () => {
         <div className="min-h-screen bg-gray-50 flex">
             <DoctorSidebar />
 
-            <main className="flex-1 p-8 overflow-y-auto h-screen">
+            <main className="flex-1 p-8 overflow-y-auto h-screen min-w-0">
                 <div className="max-w-4xl mx-auto">
                     {/* Header with Back Button */}
                     <div className="flex items-center gap-4 mb-8">

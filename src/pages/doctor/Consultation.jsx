@@ -139,7 +139,7 @@ const Consultation = () => {
         <div className="min-h-screen bg-gray-50 flex">
             <DoctorSidebar />
 
-            <main className="flex-1 p-8 overflow-y-auto h-screen">
+            <main className="flex-1 p-8 overflow-y-auto h-screen min-w-0">
                 <div className="max-w-4xl mx-auto">
                     {/* Consultation Header */}
                     <div className="flex items-center justify-between mb-10">
