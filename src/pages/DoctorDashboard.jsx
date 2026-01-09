@@ -39,9 +39,12 @@ const DoctorDashboard = () => {
             setStats(statsRes);
             setRecentPatients(patientsRes);
 
-            // Filter only SCHEDULED ones and sort by date (closest first)
+            // Filter only SCHEDULED ones, exclude past dates, and sort by date (closest first)
+            const now = new Date();
+            now.setHours(0, 0, 0, 0); // Include follow-ups from today onwards
+
             const upcoming = (followUpsRes || [])
-                .filter(f => f.status === 'SCHEDULED')
+                .filter(f => f.status === 'SCHEDULED' && new Date(f.scheduledDate) >= now)
                 .sort((a, b) => new Date(a.scheduledDate) - new Date(b.scheduledDate))
                 .slice(0, 3);
             setRecentFollowUps(upcoming);

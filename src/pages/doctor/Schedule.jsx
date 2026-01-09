@@ -43,12 +43,14 @@ const Schedule = () => {
         }
     };
 
-    const filteredFollowUps = followUps.filter(f => {
-        const matchesSearch = f.patientName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            f.notes?.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesFilter = filter === 'ALL' || f.status === filter;
-        return matchesSearch && matchesFilter;
-    });
+    const filteredFollowUps = followUps
+        .filter(f => {
+            const matchesSearch = f.patientName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                f.notes?.toLowerCase().includes(searchTerm.toLowerCase());
+            const matchesFilter = filter === 'ALL' || f.status === filter;
+            return matchesSearch && matchesFilter;
+        })
+        .sort((a, b) => new Date(a.scheduledDate) - new Date(b.scheduledDate));
 
     return (
         <div className="min-h-screen bg-gray-50 flex">
