@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
     History, Search, Filter, ArrowLeft,
     FileText, Calendar, User, Eye, Download,
-    Activity, ChevronRight, Clock, Edit2
+    Activity, ChevronRight, Clock, Edit2,
+    ChevronUp, ChevronDown, ChevronLeft, X
 } from 'lucide-react';
 import api from '../../config/api';
 import { format } from 'date-fns';
@@ -12,30 +13,109 @@ import DoctorSidebar from '../../components/DoctorSidebar';
 
 const MedicalHistory = () => {
     const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    // UI State
     const [visits, setVisits] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [searchTerm, setSearchTerm] = useState('');
+    const [pagination, setPagination] = useState({
+        totalElements: 0,
+        totalPages: 0,
+        page: 1,
+        size: 10
+    });
+    const [localSearch, setLocalSearch] = useState('');
 
-    useEffect(() => {
-        fetchVisits();
-    }, []);
+    // Helper to get params from URL
+    const getParam = (key, defaultValue) => searchParams.get(key) || defaultValue;
 
-    const fetchVisits = async () => {
+    // Derived State from URL
+    const page = parseInt(getParam('page', '1'));
+    const size = parseInt(getParam('size', '10'));
+    const sortBy = getParam('sortBy', 'visitDate');
+    const sortDir = getParam('sortDir', 'desc');
+    const search = getParam('search', '');
+    const visitFrom = getParam('visitFrom', '');
+    const visitTo = getParam('visitTo', '');
+
+    const fetchVisits = useCallback(async () => {
+        setLoading(true);
         try {
-            const data = await api.get('/doctor/visits');
-            setVisits(data);
+            const params = {
+                page,
+                size,
+                sortBy,
+                sortDir,
+                search: search || undefined,
+                visitFrom: visitFrom || undefined,
+                visitTo: visitTo || undefined
+            };
+
+            const response = await api.get('/visits', { params });
+            // API returns ApiResponse<PaginatedResponse<VisitDto>>
+            setVisits(response.data);
+            setPagination({
+                totalElements: response.totalElements,
+                totalPages: response.totalPages,
+                page: response.page,
+                size: response.size
+            });
         } catch (error) {
             console.error('Failed to fetch visits:', error);
         } finally {
             setLoading(false);
         }
+    }, [page, size, sortBy, sortDir, search, visitFrom, visitTo]);
+
+    useEffect(() => {
+        fetchVisits();
+    }, [fetchVisits]);
+
+    useEffect(() => {
+        setLocalSearch(search);
+    }, [search]);
+
+    const updateParams = (newParams) => {
+        const updated = new URLSearchParams(searchParams);
+        Object.entries(newParams).forEach(([key, value]) => {
+            if (value === undefined || value === null || value === '') {
+                updated.delete(key);
+            } else {
+                updated.set(key, value);
+            }
+        });
+        // Reset to page 1 on filter/sort change unless specifically changing page
+        if (!newParams.page && page !== 1) {
+            updated.set('page', '1');
+        }
+        setSearchParams(updated);
     };
 
-    const filteredVisits = visits.filter(v =>
-        v.patientName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        v.chiefComplaint?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        v.id?.toString().includes(searchTerm)
-    );
+    const handleSort = (field) => {
+        const dir = sortBy === field && sortDir === 'asc' ? 'desc' : 'asc';
+        updateParams({ sortBy: field, sortDir: dir });
+    };
+
+    const SortIcon = ({ field }) => {
+        const isActive = sortBy === field;
+        return (
+            <div className={`flex flex-col -gap-1 transition-all duration-300 ${isActive ? 'opacity-100 scale-110' : 'opacity-20 group-hover:opacity-50'}`}>
+                <ChevronUp className={`w-2.5 h-2.5 ${isActive && sortDir === 'asc' ? 'text-primary' : 'text-gray-400'}`} />
+                <ChevronDown className={`w-2.5 h-2.5 ${isActive && sortDir === 'desc' ? 'text-primary' : 'text-gray-400'}`} />
+            </div>
+        );
+    };
+
+    const handleSearchSubmit = (e) => {
+        if (e) e.preventDefault();
+        updateParams({ search: localSearch });
+    };
+
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            handleSearchSubmit();
+        }
+    };
 
     const [downloading, setDownloading] = useState({});
 
@@ -83,42 +163,78 @@ const MedicalHistory = () => {
                     </div>
 
                     {/* Search and Filter Bar */}
-                    <div className="bg-white p-4 rounded-2xl shadow-sm mb-8 flex gap-4">
+                    <div className="bg-white p-4 rounded-2xl shadow-sm mb-8 flex flex-col md:flex-row gap-4">
                         <div className="flex-1 flex items-center bg-gray-50 rounded-xl px-4 border border-transparent focus-within:border-primary focus-within:bg-white transition-all h-12">
                             <Search className="text-gray-400 w-5 h-5 shrink-0" />
                             <input
                                 type="text"
-                                placeholder="Search by patient name, complaint, or visit ID..."
+                                placeholder="Search by patient, complaint, ID..."
                                 className="w-full bg-transparent border-none py-2 px-3 focus:outline-none font-bold text-gray-900"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
+                                value={localSearch}
+                                onChange={(e) => setLocalSearch(e.target.value)}
+                                onKeyDown={handleKeyDown}
                             />
+                            {localSearch && (
+                                <button
+                                    onClick={() => {
+                                        setLocalSearch('');
+                                        updateParams({ search: '' });
+                                    }}
+                                    className="p-1 hover:bg-gray-200 rounded-full transition-colors"
+                                >
+                                    <X className="w-4 h-4 text-gray-400" />
+                                </button>
+                            )}
                         </div>
-                        <button className="btn btn-outline h-12 px-6">
-                            <Filter className="w-5 h-5" /> Filter Date
-                        </button>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={handleSearchSubmit}
+                                className="bg-primary text-white text-[10px] font-black uppercase tracking-widest px-6 py-2 rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
+                            >
+                                Search
+                            </button>
+                            <button className="btn btn-outline h-12 px-6">
+                                <Filter theme="outline" className="w-5 h-5" /> Filter Date
+                            </button>
+                        </div>
                     </div>
 
                     {/* Visits List */}
-                    <div className="card p-0 overflow-hidden border-none shadow-sm bg-white">
+                    <div className="card p-0 overflow-hidden border-none shadow-sm bg-white mb-8">
                         <div className="overflow-x-auto">
                             <table className="w-full text-left border-collapse">
                                 <thead>
-                                    <tr className="bg-gray-50">
-                                        <th className="px-6 py-4 text-xs font-black text-gray-400 uppercase tracking-widest">Visit ID / Date</th>
-                                        <th className="px-6 py-4 text-xs font-black text-gray-400 uppercase tracking-widest">Patient Details</th>
+                                    <tr className="bg-gray-50 border-b border-gray-100">
+                                        <th className="px-6 py-4">
+                                            <button
+                                                onClick={() => handleSort('id')}
+                                                className={`group flex items-center gap-3 px-3 py-2 rounded-xl transition-all duration-300 ${sortBy === 'id' ? 'bg-primary/5 ring-1 ring-primary/10' : 'hover:bg-gray-50'}`}
+                                            >
+                                                <span className={`text-[10px] font-black uppercase tracking-widest ${sortBy === 'id' ? 'text-primary' : 'text-gray-400'}`}>Visit ID / Date</span>
+                                                <SortIcon field="id" />
+                                            </button>
+                                        </th>
+                                        <th className="px-6 py-4">
+                                            <button
+                                                onClick={() => handleSort('patient.fullName')}
+                                                className={`group flex items-center gap-3 px-3 py-2 rounded-xl transition-all duration-300 ${sortBy === 'patient.fullName' ? 'bg-primary/5 ring-1 ring-primary/10' : 'hover:bg-gray-50'}`}
+                                            >
+                                                <span className={`text-[10px] font-black uppercase tracking-widest ${sortBy === 'patient.fullName' ? 'text-primary' : 'text-gray-400'}`}>Patient Details</span>
+                                                <SortIcon field="patient.fullName" />
+                                            </button>
+                                        </th>
                                         <th className="px-6 py-4 text-xs font-black text-gray-400 uppercase tracking-widest">Chief Complaint</th>
-                                        <th className="px-6 py-4 text-xs font-black text-gray-400 uppercase tracking-widest">Digital Prescription</th>
+                                        <th className="px-6 py-4 text-xs font-black text-gray-400 uppercase tracking-widest text-center">Digital Prescription</th>
                                         <th className="px-6 py-4"></th>
                                     </tr>
                                 </thead>
                                 <tbody className="text-sm">
                                     {loading ? (
                                         <tr><td colSpan="5" className="p-20 text-center"><div className="spinner mx-auto"></div></td></tr>
-                                    ) : filteredVisits.length === 0 ? (
+                                    ) : visits.length === 0 ? (
                                         <tr><td colSpan="5" className="p-20 text-center text-gray-400 font-bold">No visit records found</td></tr>
                                     ) : (
-                                        filteredVisits.map((v) => (
+                                        visits.map((v) => (
                                             <tr key={v.id} className="hover:bg-gray-50 transition-colors group border-b border-gray-50 last:border-0">
                                                 <td className="px-6 py-5">
                                                     <p className="font-black text-primary mb-1">#{v.id}</p>
@@ -136,10 +252,10 @@ const MedicalHistory = () => {
                                                 </td>
                                                 <td className="px-6 py-5">
                                                     <p className="font-bold text-gray-700 max-w-xs truncate">{v.chiefComplaint}</p>
-                                                    <span className="text-[10px] bg-gray-100 px-2 py-0.5 rounded-full font-black text-gray-400 uppercase tracking-tighter">Consultation</span>
+                                                    <span className="text-[10px] bg-gray-100 px-2 py-0.5 rounded-full font-black text-gray-400 uppercase tracking-tighter text-muted">Consultation</span>
                                                 </td>
                                                 <td className="px-6 py-5">
-                                                    <div className="flex items-center gap-2">
+                                                    <div className="flex items-center justify-center gap-2">
                                                         {v.medicines?.length > 0 ? (
                                                             <span className="badge badge-success text-[10px] py-1">Prescription Generated</span>
                                                         ) : (
@@ -182,6 +298,67 @@ const MedicalHistory = () => {
                                     )}
                                 </tbody>
                             </table>
+                        </div>
+                    </div>
+
+                    {/* Footer Controls */}
+                    <div className="flex flex-col md:flex-row justify-between items-center gap-6 px-4">
+                        <div className="flex items-center gap-6">
+                            <div className="flex items-center gap-3">
+                                <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Show</span>
+                                <select
+                                    value={size}
+                                    onChange={(e) => updateParams({ size: e.target.value, page: 1 })}
+                                    className="bg-white border border-gray-100 rounded-lg px-3 py-1.5 text-xs font-black text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                >
+                                    {[10, 25, 50, 100].map(s => (
+                                        <option key={s} value={s}>{s}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+                                Showing <span className="text-gray-900">{visits.length}</span> of <span className="text-gray-900">{pagination.totalElements}</span> logs
+                            </p>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={() => updateParams({ page: page - 1 })}
+                                disabled={page === 1}
+                                className="p-2 rounded-xl bg-white border border-gray-100 text-gray-400 hover:text-primary disabled:opacity-30 disabled:hover:text-gray-400 transition-all shadow-sm"
+                            >
+                                <ChevronLeft className="w-5 h-5" />
+                            </button>
+
+                            <div className="flex items-center gap-1">
+                                {[...Array(pagination.totalPages)].map((_, i) => {
+                                    const p = i + 1;
+                                    // Logic to show limited page numbers if too many
+                                    if (pagination.totalPages > 7) {
+                                        if (p !== 1 && p !== pagination.totalPages && Math.abs(p - page) > 1) {
+                                            if (Math.abs(p - page) === 2) return <span key={p} className="px-1 text-gray-300">...</span>;
+                                            return null;
+                                        }
+                                    }
+                                    return (
+                                        <button
+                                            key={p}
+                                            onClick={() => updateParams({ page: p })}
+                                            className={`w-9 h-9 rounded-xl font-black text-xs transition-all ${page === p ? 'bg-primary text-white shadow-lg shadow-primary/20 scale-110' : 'bg-white text-gray-400 hover:bg-gray-50 border border-gray-100'}`}
+                                        >
+                                            {p}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+
+                            <button
+                                onClick={() => updateParams({ page: page + 1 })}
+                                disabled={page === pagination.totalPages || pagination.totalPages === 0}
+                                className="p-2 rounded-xl bg-white border border-gray-100 text-gray-400 hover:text-primary disabled:opacity-30 disabled:hover:text-gray-400 transition-all shadow-sm"
+                            >
+                                <ChevronRight className="w-5 h-5" />
+                            </button>
                         </div>
                     </div>
                 </div>
